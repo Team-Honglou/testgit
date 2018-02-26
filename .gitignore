@@ -2,6 +2,4 @@
 
 # dependencies
 /node_modules/*
-!/node_modules/@delon/abc/sidebar-nav/sidebar-nav.component.js
-
-
+!/node_modules/@delon

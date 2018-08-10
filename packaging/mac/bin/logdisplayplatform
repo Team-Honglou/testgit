@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+DAEMON=logdisplayplatform-server
+EXECUTABLE=/usr/local/bin/logdisplayplatform-server
+CONFIG=/usr/local/etc/logdisplayplatform/logdisplayplatform.ini
+HOMEPATH=/usr/local/share/logdisplayplatform
+LOGPATH=/usr/local/var/log/logdisplayplatform
+DATAPATH=/usr/local/var/lib/logdisplayplatform
+PLUGINPATH=/usr/local/var/lib/logdisplayplatform/plugins
+DATASOURCECFGPATH=/usr/local/etc/logdisplayplatform/datasources
+DASHBOARDSCFGPATH=/usr/local/etc/logdisplayplatform/dashboards
+
+case "$1" in
+start)
+  $EXECUTABLE --config=$CONFIG --homepath=$HOMEPATH cfg:default.paths.datasources=$DATASOURCECFGPATH cfg:default.paths.dashboards=$DASHBOARDSCFGPATH cfg:default.paths.logs=$LOGPATH cfg:default.paths.data=$DATAPATH cfg:default.paths.plugins=$PLUGINPATH 2> /dev/null &
+  [ $? -eq 0 ] && echo "$DAEMON started"
+;;
+stop)
+  killall $DAEMON
+  [ $? -eq 0 ] && echo "$DAEMON stopped"
+;;
+restart)
+  $0 stop
+  $0 start
+;;
+*)
+  echo "Usage: $0 (start|stop|restart)"
+;;
+esac

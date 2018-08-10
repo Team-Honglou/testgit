@@ -1,0 +1,18 @@
+{
+  "type": "panel",
+  "name": "Text",
+  "id": "text",
+
+  "info": {
+    "author": {
+      "name": "LogDisplayPlatform Project",
+      "url": "https://logdisplayplatform.com"
+},
+    "logos": {
+      "small": "img/icn-text-panel.svg",
+      "large": "img/icn-text-panel.svg"
+    },
+    "version": "5.0.0"
+  }
+}
+

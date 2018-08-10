@@ -1,0 +1,19 @@
+{
+  "type": "panel",
+  "name": "Graph",
+  "id": "graph",
+
+  "info": {
+    "description": "Graph Panel for LogDisplayPlatform",
+    "author": {
+      "name": "LogDisplayPlatform Project",
+      "url": "https://logdisplayplatform.com"
+},
+    "logos": {
+      "small": "img/icn-graph-panel.svg",
+      "large": "img/icn-graph-panel.svg"
+    },
+    "version": "5.0.0"
+  }
+}
+

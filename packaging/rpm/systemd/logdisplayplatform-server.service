@@ -1,0 +1,29 @@
+[Unit]
+Description=LogDisplayPlatform instance
+Documentation=http://docs.logdisplayplatform.org
+Wants=network-online.target
+After=network-online.target
+After=postgresql.service mariadb.service mysql.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/logdisplayplatform-server
+User=logdisplayplatform
+Group=logdisplayplatform
+Type=notify
+Restart=on-failure
+WorkingDirectory=/usr/share/logdisplayplatform
+RuntimeDirectory=logdisplayplatform
+RuntimeDirectoryMode=0750
+ExecStart=/usr/sbin/logdisplayplatform-server                                                  \
+                            --config=${CONF_FILE}                                   \
+                            --pidfile=${PID_FILE_DIR}/logdisplayplatform-server.pid            \
+                            cfg:default.paths.logs=${LOG_DIR}                       \
+                            cfg:default.paths.data=${DATA_DIR}                      \
+                            cfg:default.paths.plugins=${PLUGINS_DIR}                \
+                            cfg:default.paths.provisioning=${PROVISIONING_CFG_DIR}  
+
+LimitNOFILE=10000
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target

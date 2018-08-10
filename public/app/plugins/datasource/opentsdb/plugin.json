@@ -1,0 +1,23 @@
+{
+  "type": "datasource",
+  "name": "OpenTSDB",
+  "id": "opentsdb",
+
+  "metrics": true,
+  "defaultMatchFormat": "pipe",
+  "annotations": true,
+  "alerting": true,
+
+  "info": {
+    "description": "OpenTSDB Data Source for LogDisplayPlatform",
+    "author": {
+      "name": "LogDisplayPlatform Project",
+      "url": "https://logdisplayplatform.com"
+    },
+    "logos": {
+      "small": "img/opentsdb_logo.png",
+      "large": "img/opentsdb_logo.png"
+    },
+    "version": "5.0.0"
+  }
+}

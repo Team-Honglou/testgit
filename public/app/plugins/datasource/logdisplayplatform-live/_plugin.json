@@ -1,0 +1,7 @@
+{
+  "type": "datasource",
+  "name": "LogDisplayPlatform Live",
+  "id": "logdisplayplatform-live",
+
+  "metrics": true
+}

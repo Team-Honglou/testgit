@@ -1,0 +1,21 @@
+{
+  "type": "datasource",
+  "name": "Microsoft SQL Server",
+  "id": "mssql",
+
+  "info": {
+    "description": "Microsoft SQL Server Data Source for LogDisplayPlatform",
+    "author": {
+      "name": "LogDisplayPlatform Project",
+      "url": "https://logdisplayplatform.com"
+    },
+    "logos": {
+      "small": "img/sql_server_logo.svg",
+      "large": "img/sql_server_logo.svg"
+    }
+  },
+
+  "alerting": true,
+  "annotations": true,
+  "metrics": true
+}

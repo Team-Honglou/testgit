@@ -1,0 +1,20 @@
+{
+  "type": "datasource",
+  "name": "TestData DB",
+  "id": "testdata",
+
+  "metrics": true,
+  "alerting": true,
+  "annotations": true,
+
+  "info": {
+    "author": {
+      "name": "LogDisplayPlatform Project",
+      "url": "https://logdisplayplatform.com"
+    },
+    "logos": {
+      "small": "../../../../img/logdisplayplatform_icon.svg",
+      "large": "../../../../img/logdisplayplatform_icon.svg"
+    }
+  }
+}

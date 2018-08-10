@@ -1,0 +1,82 @@
+#!/bin/sh
+
+set -e
+
+[ -f /etc/default/logdisplayplatform-server ] && . /etc/default/logdisplayplatform-server
+
+IS_UPGRADE=false
+
+
+case "$1" in
+	configure)
+	[ -z "$GRAFANA_USER" ] && GRAFANA_USER="logdisplayplatform"
+	[ -z "$GRAFANA_GROUP" ] && GRAFANA_GROUP="logdisplayplatform"
+	if ! getent group "$GRAFANA_GROUP" > /dev/null 2>&1 ; then
+	    addgroup --system "$GRAFANA_GROUP" --quiet
+	fi
+	if ! id $GRAFANA_USER > /dev/null 2>&1 ; then
+	    adduser --system --home /usr/share/logdisplayplatform --no-create-home \
+		--ingroup "$GRAFANA_GROUP" --disabled-password --shell /bin/false \
+		"$GRAFANA_USER"
+	fi
+
+	# Set user permissions on /var/log/logdisplayplatform, /var/lib/logdisplayplatform
+	mkdir -p /var/log/logdisplayplatform /var/lib/logdisplayplatform
+	chown -R $GRAFANA_USER:$GRAFANA_GROUP /var/log/logdisplayplatform /var/lib/logdisplayplatform
+	chmod 755 /var/log/logdisplayplatform /var/lib/logdisplayplatform
+
+  # copy user config files
+  if [ ! -f $CONF_FILE ]; then
+    cp /usr/share/logdisplayplatform/conf/sample.ini $CONF_FILE
+    cp /usr/share/logdisplayplatform/conf/ldap.toml /etc/logdisplayplatform/ldap.toml
+  fi
+
+  if [ ! -f $PROVISIONING_CFG_DIR ]; then
+    mkdir -p $PROVISIONING_CFG_DIR/dashboards $PROVISIONING_CFG_DIR/datasources
+    cp /usr/share/logdisplayplatform/conf/provisioning/dashboards/sample.yaml $PROVISIONING_CFG_DIR/dashboards/sample.yaml
+    cp /usr/share/logdisplayplatform/conf/provisioning/datasources/sample.yaml $PROVISIONING_CFG_DIR/datasources/sample.yaml
+  fi 
+
+	# configuration files should not be modifiable by logdisplayplatform user, as this can be a security issue
+	chown -Rh root:$GRAFANA_GROUP /etc/logdisplayplatform/*
+	chmod 755 /etc/logdisplayplatform
+	find /etc/logdisplayplatform -type f -exec chmod 640 {} ';'
+	find /etc/logdisplayplatform -type d -exec chmod 755 {} ';'
+
+  # If $1=configure and $2 is set, this is an upgrade
+  if [ "$2" != "" ]; then
+    IS_UPGRADE=true
+  fi
+
+  if [ "x$IS_UPGRADE" != "xtrue" ]; then
+    if command -v systemctl >/dev/null; then
+      echo "### NOT starting on installation, please execute the following statements to configure logdisplayplatform to start automatically using systemd"
+      echo " sudo /bin/systemctl daemon-reload"
+      echo " sudo /bin/systemctl enable logdisplayplatform-server"
+      echo "### You can start logdisplayplatform-server by executing"
+      echo " sudo /bin/systemctl start logdisplayplatform-server"
+    elif command -v update-rc.d >/dev/null; then
+      echo "### NOT starting logdisplayplatform-server by default on bootup, please execute"
+      echo " sudo update-rc.d logdisplayplatform-server defaults 95 10"
+      echo "### In order to start logdisplayplatform-server, execute"
+      echo " sudo service logdisplayplatform-server start"
+    fi
+  elif [ "$RESTART_ON_UPGRADE" = "true" ]; then
+
+    echo -n "Restarting logdisplayplatform-server service..."
+
+    if command -v systemctl >/dev/null; then
+      systemctl daemon-reload
+      systemctl restart logdisplayplatform-server || true
+    elif [ -x /etc/init.d/logdisplayplatform-server ]; then
+      if command -v invoke-rc.d >/dev/null; then
+        invoke-rc.d logdisplayplatform-server restart || true
+      else
+        /etc/init.d/logdisplayplatform-server restart || true
+      fi
+    fi
+    echo " OK"
+
+	fi
+	;;
+esac

@@ -1,0 +1,9 @@
+{
+  "type": "datasource",
+  "name": "-- LogDisplayPlatform --",
+  "id": "logdisplayplatform",
+
+  "builtIn": true,
+  "annotations": true,
+  "metrics": true
+}

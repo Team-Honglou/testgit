@@ -1,0 +1,19 @@
+{
+  "type": "panel",
+  "name": "Table",
+  "id": "table",
+
+  "info": {
+    "description": "Table Panel for LogDisplayPlatform",
+    "author": {
+      "name": "LogDisplayPlatform Project",
+      "url": "https://logdisplayplatform.com"
+},
+    "logos": {
+      "small": "img/icn-table-panel.svg",
+      "large": "img/icn-table-panel.svg"
+    },
+    "version": "5.0.0"
+  }
+}
+

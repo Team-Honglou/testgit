@@ -32,11 +32,11 @@ export interface DiffTarget {
 
 export class HistorySrv {
   /** @ngInject */
-  constructor(private backendSrv) {}
+  constructor(private backendSrv, private $q) {}
 
   getHistoryList(dashboard: DashboardModel, options: HistoryListOpts) {
     const id = dashboard && dashboard.id ? dashboard.id : void 0;
-    return id ? this.backendSrv.get(`api/dashboards/id/${id}/versions`, options) : Promise.resolve([]);
+    return id ? this.backendSrv.get(`api/dashboards/id/${id}/versions`, options) : this.$q.when([]);
   }
 
   calculateDiff(options: CalculateDiffOptions) {
@@ -46,8 +46,7 @@ export class HistorySrv {
   restoreDashboard(dashboard: DashboardModel, version: number) {
     const id = dashboard && dashboard.id ? dashboard.id : void 0;
     const url = `api/dashboards/id/${id}/restore`;
-
-    return id && _.isNumber(version) ? this.backendSrv.post(url, { version }) : Promise.resolve({});
+    return id && _.isNumber(version) ? this.backendSrv.post(url, { version }) : this.$q.when({});
   }
 }
 

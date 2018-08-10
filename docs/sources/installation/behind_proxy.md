@@ -26,7 +26,7 @@ Otherwise LogDisplayPlatform will not behave correctly. See example below.
 ## Examples
 Here are some example configurations for running LogDisplayPlatform behind a reverse proxy.
 
-### LogDisplayPlatform configuration (ex http://foo.bar)
+### LogDisplayPlatform configuration (ex http://foo.bar.com)
 
 ```bash
 [server]
@@ -47,7 +47,7 @@ server {
 }
 ```
 
-### Examples with **sub path** (ex http://foo.bar/logdisplayplatform)
+### Examples with **sub path** (ex http://foo.bar.com/logdisplayplatform)
 
 #### LogDisplayPlatform configuration with sub path
 ```bash

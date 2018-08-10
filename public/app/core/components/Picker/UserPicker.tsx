@@ -1,17 +1,16 @@
 import React, { Component } from 'react';
 import Select from 'react-select';
 import PickerOption from './PickerOption';
+import withPicker from './withPicker';
 import { debounce } from 'lodash';
-import { getBackendSrv } from 'app/core/services/backend_srv';
 
-export interface Props {
-  onSelected: (user: User) => void;
+export interface IProps {
+  backendSrv: any;
+  isLoading: boolean;
+  toggleLoading: any;
+  handlePicked: (user) => void;
   value?: string;
   className?: string;
-}
-
-export interface State {
-  isLoading: boolean;
 }
 
 export interface User {
@@ -21,12 +20,13 @@ export interface User {
   login: string;
 }
 
-export class UserPicker extends Component<Props, State> {
+class UserPicker extends Component<IProps, any> {
   debouncedSearch: any;
+  backendSrv: any;
 
   constructor(props) {
     super(props);
-    this.state = { isLoading: false };
+    this.state = {};
     this.search = this.search.bind(this);
 
     this.debouncedSearch = debounce(this.search, 300, {
@@ -36,34 +36,29 @@ export class UserPicker extends Component<Props, State> {
   }
 
   search(query?: string) {
-    const backendSrv = getBackendSrv();
+    const { toggleLoading, backendSrv } = this.props;
 
-    this.setState({ isLoading: true });
-
-    return backendSrv
-      .get(`/api/org/users?query=${query}&limit=10`)
-      .then(result => {
+    toggleLoading(true);
+    return backendSrv.get(`/api/org/users?query=${query}&limit=10`).then(result => {
+      const users = result.map(user => {
         return {
-          options: result.map(user => ({
-            id: user.userId,
-            label: `${user.login} - ${user.email}`,
-            avatarUrl: user.avatarUrl,
-            login: user.login,
-          })),
+          id: user.userId,
+          label: `${user.login} - ${user.email}`,
+          avatarUrl: user.avatarUrl,
+          login: user.login,
         };
-      })
-      .finally(() => {
-        this.setState({ isLoading: false });
       });
+      toggleLoading(false);
+      return { options: users };
+    });
   }
 
   render() {
-    const { value, className } = this.props;
-    const { isLoading } = this.state;
-
+    const AsyncComponent = this.state.creatable ? Select.AsyncCreatable : Select.Async;
+    const { isLoading, handlePicked, value, className } = this.props;
     return (
       <div className="user-picker">
-        <Select.Async
+        <AsyncComponent
           valueKey="id"
           multi={false}
           labelKey="label"
@@ -72,10 +67,10 @@ export class UserPicker extends Component<Props, State> {
           loadOptions={this.debouncedSearch}
           loadingPlaceholder="Loading..."
           noResultsText="No users found"
-          onChange={this.props.onSelected}
+          onChange={handlePicked}
           className={`gf-form-input gf-form-input--form-dropdown ${className || ''}`}
           optionComponent={PickerOption}
-          placeholder="Select user"
+          placeholder="Choose"
           value={value}
           autosize={true}
         />
@@ -83,3 +78,5 @@ export class UserPicker extends Component<Props, State> {
     );
   }
 }
+
+export default withPicker(UserPicker);

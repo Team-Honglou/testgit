@@ -10,7 +10,7 @@ type UrlQueryReader struct {
 }
 
 func NewUrlQueryReader(urlInfo *url.URL) (*UrlQueryReader, error) {
-	u, err := url.ParseQuery(urlInfo.RawQuery)
+	u, err := url.ParseQuery(urlInfo.String())
 	if err != nil {
 		return nil, err
 	}

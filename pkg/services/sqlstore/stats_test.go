@@ -1,7 +1,6 @@
 package sqlstore
 
 import (
-	"context"
 	"testing"
 
 	m "github.com/logdisplayplatform/logdisplayplatform/pkg/models"
@@ -21,7 +20,7 @@ func TestStatsDataAccess(t *testing.T) {
 
 		Convey("Get system user count stats should not results in error", func() {
 			query := m.GetSystemUserCountStatsQuery{}
-			err := GetSystemUserCountStats(context.Background(), &query)
+			err := GetSystemUserCountStats(&query)
 			So(err, ShouldBeNil)
 		})
 

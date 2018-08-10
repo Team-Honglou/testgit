@@ -1,16 +1,11 @@
 This folder contains useful scripts and configuration for...
 
-* Configuring dev datasources in LogDisplayPlatform
-* Configuring dev & test scenarios dashboards.
+* Configuring datasources in LogDisplayPlatform
+* Provision example dashboards in LogDisplayPlatform
+* Run preconfiured datasources as docker containers
+
+want to know more? run setup!
 
 ```bash
 ./setup.sh
 ```
-
-After restarting logdisplayplatform server there should now be a number of datasources named `gdev-<type>` provisioned as well as a dashboard folder named `gdev dashboards`. This folder contains dashboard & panel features tests dashboards. 
-
-# Dev dashboards
-
-Please update these dashboards or make new ones as new panels & dashboards features are developed or new bugs are found. The dashboards are located in the `devenv/dev-dashboards` folder. 
-
-

@@ -77,7 +77,7 @@
     border: none;
     color: $text-color;
     &.active span {
-      color: $blue;
+      color: $query-blue;
       font-weight: bold;
     }
     .text-info {

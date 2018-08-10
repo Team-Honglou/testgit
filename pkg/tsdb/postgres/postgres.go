@@ -1,38 +1,46 @@
 package postgres
 
 import (
-	"database/sql"
+	"container/list"
+	"context"
+	"fmt"
+	"math"
 	"net/url"
 	"strconv"
 
 	"github.com/go-xorm/core"
+	"github.com/logdisplayplatform/logdisplayplatform/pkg/components/null"
 	"github.com/logdisplayplatform/logdisplayplatform/pkg/log"
 	"github.com/logdisplayplatform/logdisplayplatform/pkg/models"
 	"github.com/logdisplayplatform/logdisplayplatform/pkg/tsdb"
 )
 
-func init() {
-	tsdb.RegisterTsdbQueryEndpoint("postgres", newPostgresQueryEndpoint)
+type PostgresQueryEndpoint struct {
+	sqlEngine tsdb.SqlEngine
+	log       log.Logger
 }
 
-func newPostgresQueryEndpoint(datasource *models.DataSource) (tsdb.TsdbQueryEndpoint, error) {
-	logger := log.New("tsdb.postgres")
+func init() {
+	tsdb.RegisterTsdbQueryEndpoint("postgres", NewPostgresQueryEndpoint)
+}
+
+func NewPostgresQueryEndpoint(datasource *models.DataSource) (tsdb.TsdbQueryEndpoint, error) {
+	endpoint := &PostgresQueryEndpoint{
+		log: log.New("tsdb.postgres"),
+	}
+
+	endpoint.sqlEngine = &tsdb.DefaultSqlEngine{
+		MacroEngine: NewPostgresMacroEngine(),
+	}
 
 	cnnstr := generateConnectionString(datasource)
-	logger.Debug("getEngine", "connection", cnnstr)
+	endpoint.log.Debug("getEngine", "connection", cnnstr)
 
-	config := tsdb.SqlQueryEndpointConfiguration{
-		DriverName:        "postgres",
-		ConnectionString:  cnnstr,
-		Datasource:        datasource,
-		MetricColumnTypes: []string{"UNKNOWN", "TEXT", "VARCHAR", "CHAR"},
+	if err := endpoint.sqlEngine.InitEngine("postgres", datasource, cnnstr); err != nil {
+		return nil, err
 	}
 
-	rowTransformer := postgresRowTransformer{
-		log: logger,
-	}
-
-	return tsdb.NewSqlQueryEndpoint(&config, &rowTransformer, newPostgresMacroEngine(), logger)
+	return endpoint, nil
 }
 
 func generateConnectionString(datasource *models.DataSource) string {
@@ -45,25 +53,74 @@ func generateConnectionString(datasource *models.DataSource) string {
 	}
 
 	sslmode := datasource.JsonData.Get("sslmode").MustString("verify-full")
-	u := &url.URL{
-		Scheme: "postgres",
-		User:   url.UserPassword(datasource.User, password),
-		Host:   datasource.Url, Path: datasource.Database,
-		RawQuery: "sslmode=" + url.QueryEscape(sslmode),
-	}
-
+	u := &url.URL{Scheme: "postgres", User: url.UserPassword(datasource.User, password), Host: datasource.Url, Path: datasource.Database, RawQuery: "sslmode=" + sslmode}
 	return u.String()
 }
 
-type postgresRowTransformer struct {
-	log log.Logger
+func (e *PostgresQueryEndpoint) Query(ctx context.Context, dsInfo *models.DataSource, tsdbQuery *tsdb.TsdbQuery) (*tsdb.Response, error) {
+	return e.sqlEngine.Query(ctx, dsInfo, tsdbQuery, e.transformToTimeSeries, e.transformToTable)
 }
 
-func (t *postgresRowTransformer) Transform(columnTypes []*sql.ColumnType, rows *core.Rows) (tsdb.RowValues, error) {
-	values := make([]interface{}, len(columnTypes))
-	valuePtrs := make([]interface{}, len(columnTypes))
+func (e PostgresQueryEndpoint) transformToTable(query *tsdb.Query, rows *core.Rows, result *tsdb.QueryResult, tsdbQuery *tsdb.TsdbQuery) error {
+	columnNames, err := rows.Columns()
+	if err != nil {
+		return err
+	}
 
-	for i := 0; i < len(columnTypes); i++ {
+	table := &tsdb.Table{
+		Columns: make([]tsdb.TableColumn, len(columnNames)),
+		Rows:    make([]tsdb.RowValues, 0),
+	}
+
+	for i, name := range columnNames {
+		table.Columns[i].Text = name
+	}
+
+	rowLimit := 1000000
+	rowCount := 0
+	timeIndex := -1
+
+	// check if there is a column named time
+	for i, col := range columnNames {
+		switch col {
+		case "time":
+			timeIndex = i
+		}
+	}
+
+	for ; rows.Next(); rowCount++ {
+		if rowCount > rowLimit {
+			return fmt.Errorf("PostgreSQL query row limit exceeded, limit %d", rowLimit)
+		}
+
+		values, err := e.getTypedRowData(rows)
+		if err != nil {
+			return err
+		}
+
+		// converts column named time to unix timestamp in milliseconds to make
+		// native postgres datetime types and epoch dates work in
+		// annotation and table queries.
+		tsdb.ConvertSqlTimeColumnToEpochMs(values, timeIndex)
+
+		table.Rows = append(table.Rows, values)
+	}
+
+	result.Tables = append(result.Tables, table)
+	result.Meta.Set("rowCount", rowCount)
+	return nil
+}
+
+func (e PostgresQueryEndpoint) getTypedRowData(rows *core.Rows) (tsdb.RowValues, error) {
+	types, err := rows.ColumnTypes()
+	if err != nil {
+		return nil, err
+	}
+
+	values := make([]interface{}, len(types))
+	valuePtrs := make([]interface{}, len(types))
+
+	for i := 0; i < len(types); i++ {
 		valuePtrs[i] = &values[i]
 	}
 
@@ -73,24 +130,180 @@ func (t *postgresRowTransformer) Transform(columnTypes []*sql.ColumnType, rows *
 
 	// convert types not handled by lib/pq
 	// unhandled types are returned as []byte
-	for i := 0; i < len(columnTypes); i++ {
+	for i := 0; i < len(types); i++ {
 		if value, ok := values[i].([]byte); ok {
-			switch columnTypes[i].DatabaseTypeName() {
+			switch types[i].DatabaseTypeName() {
 			case "NUMERIC":
 				if v, err := strconv.ParseFloat(string(value), 64); err == nil {
 					values[i] = v
 				} else {
-					t.log.Debug("Rows", "Error converting numeric to float", value)
+					e.log.Debug("Rows", "Error converting numeric to float", value)
 				}
 			case "UNKNOWN", "CIDR", "INET", "MACADDR":
 				// char literals have type UNKNOWN
 				values[i] = string(value)
 			default:
-				t.log.Debug("Rows", "Unknown database type", columnTypes[i].DatabaseTypeName(), "value", value)
+				e.log.Debug("Rows", "Unknown database type", types[i].DatabaseTypeName(), "value", value)
 				values[i] = string(value)
 			}
 		}
 	}
 
 	return values, nil
+}
+
+func (e PostgresQueryEndpoint) transformToTimeSeries(query *tsdb.Query, rows *core.Rows, result *tsdb.QueryResult, tsdbQuery *tsdb.TsdbQuery) error {
+	pointsBySeries := make(map[string]*tsdb.TimeSeries)
+	seriesByQueryOrder := list.New()
+
+	columnNames, err := rows.Columns()
+	if err != nil {
+		return err
+	}
+
+	columnTypes, err := rows.ColumnTypes()
+	if err != nil {
+		return err
+	}
+
+	rowLimit := 1000000
+	rowCount := 0
+	timeIndex := -1
+	metricIndex := -1
+
+	// check columns of resultset: a column named time is mandatory
+	// the first text column is treated as metric name unless a column named metric is present
+	for i, col := range columnNames {
+		switch col {
+		case "time":
+			timeIndex = i
+		case "metric":
+			metricIndex = i
+		default:
+			if metricIndex == -1 {
+				switch columnTypes[i].DatabaseTypeName() {
+				case "UNKNOWN", "TEXT", "VARCHAR", "CHAR":
+					metricIndex = i
+				}
+			}
+		}
+	}
+
+	if timeIndex == -1 {
+		return fmt.Errorf("Found no column named time")
+	}
+
+	fillMissing := query.Model.Get("fill").MustBool(false)
+	var fillInterval float64
+	fillValue := null.Float{}
+	if fillMissing {
+		fillInterval = query.Model.Get("fillInterval").MustFloat64() * 1000
+		if !query.Model.Get("fillNull").MustBool(false) {
+			fillValue.Float64 = query.Model.Get("fillValue").MustFloat64()
+			fillValue.Valid = true
+		}
+	}
+
+	for rows.Next() {
+		var timestamp float64
+		var value null.Float
+		var metric string
+
+		if rowCount > rowLimit {
+			return fmt.Errorf("PostgreSQL query row limit exceeded, limit %d", rowLimit)
+		}
+
+		values, err := e.getTypedRowData(rows)
+		if err != nil {
+			return err
+		}
+
+		// converts column named time to unix timestamp in milliseconds to make
+		// native mysql datetime types and epoch dates work in
+		// annotation and table queries.
+		tsdb.ConvertSqlTimeColumnToEpochMs(values, timeIndex)
+
+		switch columnValue := values[timeIndex].(type) {
+		case int64:
+			timestamp = float64(columnValue)
+		case float64:
+			timestamp = columnValue
+		default:
+			return fmt.Errorf("Invalid type for column time, must be of type timestamp or unix timestamp, got: %T %v", columnValue, columnValue)
+		}
+
+		if metricIndex >= 0 {
+			if columnValue, ok := values[metricIndex].(string); ok {
+				metric = columnValue
+			} else {
+				return fmt.Errorf("Column metric must be of type char,varchar or text, got: %T %v", values[metricIndex], values[metricIndex])
+			}
+		}
+
+		for i, col := range columnNames {
+			if i == timeIndex || i == metricIndex {
+				continue
+			}
+
+			if value, err = tsdb.ConvertSqlValueColumnToFloat(col, values[i]); err != nil {
+				return err
+			}
+
+			if metricIndex == -1 {
+				metric = col
+			}
+
+			series, exist := pointsBySeries[metric]
+			if !exist {
+				series = &tsdb.TimeSeries{Name: metric}
+				pointsBySeries[metric] = series
+				seriesByQueryOrder.PushBack(metric)
+			}
+
+			if fillMissing {
+				var intervalStart float64
+				if !exist {
+					intervalStart = float64(tsdbQuery.TimeRange.MustGetFrom().UnixNano() / 1e6)
+				} else {
+					intervalStart = series.Points[len(series.Points)-1][1].Float64 + fillInterval
+				}
+
+				// align interval start
+				intervalStart = math.Floor(intervalStart/fillInterval) * fillInterval
+
+				for i := intervalStart; i < timestamp; i += fillInterval {
+					series.Points = append(series.Points, tsdb.TimePoint{fillValue, null.FloatFrom(i)})
+					rowCount++
+				}
+			}
+
+			series.Points = append(series.Points, tsdb.TimePoint{value, null.FloatFrom(timestamp)})
+
+			e.log.Debug("Rows", "metric", metric, "time", timestamp, "value", value)
+			rowCount++
+
+		}
+	}
+
+	for elem := seriesByQueryOrder.Front(); elem != nil; elem = elem.Next() {
+		key := elem.Value.(string)
+		result.Series = append(result.Series, pointsBySeries[key])
+
+		if fillMissing {
+			series := pointsBySeries[key]
+			// fill in values from last fetched value till interval end
+			intervalStart := series.Points[len(series.Points)-1][1].Float64
+			intervalEnd := float64(tsdbQuery.TimeRange.MustGetTo().UnixNano() / 1e6)
+
+			// align interval start
+			intervalStart = math.Floor(intervalStart/fillInterval) * fillInterval
+			for i := intervalStart + fillInterval; i < intervalEnd; i += fillInterval {
+				series.Points = append(series.Points, tsdb.TimePoint{fillValue, null.FloatFrom(i)})
+				rowCount++
+			}
+		}
+	}
+
+	result.Meta.Set("rowCount", rowCount)
+	return nil
 }

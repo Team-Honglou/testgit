@@ -104,7 +104,10 @@ export class FolderPickerCtrl {
       appEvents.emit('alert-success', ['Folder Created', 'OK']);
 
       this.closeCreateFolder();
-      this.folder = { text: result.title, value: result.id };
+      this.folder = {
+        text: result.title,
+        value: result.id,
+      };
       this.onFolderChange(this.folder);
     });
   }
@@ -146,14 +149,17 @@ export class FolderPickerCtrl {
           folder = result.length > 0 ? result[0] : resetFolder;
         }
       }
-
       this.folder = folder;
-
-      // if this is not the same as our initial value notify parent
-      if (this.folder.id !== this.initialFolderId) {
-        this.onChange({ $folder: { id: this.folder.value, title: this.folder.text } });
-      }
+      this.onFolderLoad();
     });
+  }
+
+  private onFolderLoad() {
+    if (this.onLoad) {
+      this.onLoad({
+        $folder: { id: this.folder.value, title: this.folder.text },
+      });
+    }
   }
 }
 
@@ -170,6 +176,7 @@ export function folderPicker() {
       labelClass: '@',
       rootName: '@',
       onChange: '&',
+      onLoad: '&',
       onCreateFolder: '&',
       enterFolderCreation: '&',
       exitFolderCreation: '&',

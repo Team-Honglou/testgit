@@ -85,14 +85,6 @@
     // icon hidden on smaller screens
     display: none;
   }
-
-  &--folder {
-    color: $text-color-weak;
-
-    @include media-breakpoint-down(md) {
-      display: none;
-    }
-  }
 }
 
 .navbar-buttons {

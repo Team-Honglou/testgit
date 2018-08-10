@@ -4,8 +4,6 @@ const BRACES = {
   '(': ')',
 };
 
-const NON_SELECTOR_SPACE_REGEXP = / (?![^}]+})/;
-
 export default function BracesPlugin() {
   return {
     onKeyDown(event, change) {
@@ -30,8 +28,8 @@ export default function BracesPlugin() {
           event.preventDefault();
           const text = value.anchorText.text;
           const offset = value.anchorOffset;
-          const delimiterIndex = text.slice(offset).search(NON_SELECTOR_SPACE_REGEXP);
-          const length = delimiterIndex > -1 ? delimiterIndex + offset : text.length;
+          const space = text.indexOf(' ', offset);
+          const length = space > 0 ? space : text.length;
           const forward = length - offset;
           // Insert matching braces
           change

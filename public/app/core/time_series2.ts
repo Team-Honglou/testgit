@@ -76,7 +76,6 @@ export default class TimeSeries {
   valueFormater: any;
   stats: any;
   legend: boolean;
-  hideTooltip: boolean;
   allIsNull: boolean;
   allIsZero: boolean;
   decimals: number;
@@ -181,9 +180,6 @@ export default class TimeSeries {
       }
       if (override.legend !== void 0) {
         this.legend = override.legend;
-      }
-      if (override.hideTooltip !== void 0) {
-        this.hideTooltip = override.hideTooltip;
       }
 
       if (override.yaxis !== void 0) {

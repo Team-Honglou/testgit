@@ -52,7 +52,7 @@ func QueryMetrics(c *m.ReqContext, reqDto dtos.MetricRequest) Response {
 		if res.Error != nil {
 			res.ErrorString = res.Error.Error()
 			resp.Message = res.ErrorString
-			statusCode = 400
+			statusCode = 500
 		}
 	}
 
@@ -99,7 +99,7 @@ func GetTestDataRandomWalk(c *m.ReqContext) Response {
 	timeRange := tsdb.NewTimeRange(from, to)
 	request := &tsdb.TsdbQuery{TimeRange: timeRange}
 
-	dsInfo := &m.DataSource{Type: "testdata"}
+	dsInfo := &m.DataSource{Type: "logdisplayplatform-testdata-datasource"}
 	request.Queries = append(request.Queries, &tsdb.Query{
 		RefId:      "A",
 		IntervalMs: intervalMs,

@@ -76,14 +76,13 @@ EOF
         IFS=","; declare -a modules=($SLAPD_ADDITIONAL_MODULES); unset IFS
 
         for module in "${modules[@]}"; do
-          echo "Adding module ${module}"
-          slapadd -n0 -F /etc/ldap/slapd.d -l "/etc/ldap/modules/${module}.ldif" >/dev/null 2>&1
+             slapadd -n0 -F /etc/ldap/slapd.d -l "/etc/ldap/modules/${module}.ldif" >/dev/null 2>&1
         done
     fi
 
-    # This needs to run in background
-    # Will prepopulate entries after ldap daemon has started
-    ./prepopulate.sh &
+    for file in `ls /etc/ldap/prepopulate/*.ldif`; do
+        slapadd -F /etc/ldap/slapd.d -l "$file"
+    done
 
     chown -R openldap:openldap /etc/ldap/slapd.d/ /var/lib/ldap/ /var/run/slapd/
 else

@@ -18,7 +18,7 @@ import (
 
 var pluginProxyTransport *http.Transport
 
-func (hs *HTTPServer) initAppPluginRoutes(r *macaron.Macaron) {
+func InitAppPluginRoutes(r *macaron.Macaron) {
 	pluginProxyTransport = &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: setting.PluginAppsSkipVerifyTLS,

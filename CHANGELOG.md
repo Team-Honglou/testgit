@@ -1,93 +1,4 @@
-# 5.3.0 (unreleased)
-
-* **Dataproxy**: Pass configured/auth headers to a Datasource [#10971](https://github.com/logdisplayplatform/logdisplayplatform/issues/10971), thx [@mrsiano](https://github.com/mrsiano)
-* **Cleanup**: Make temp file time to live configurable [#11607](https://github.com/logdisplayplatform/logdisplayplatform/issues/11607), thx [@xapon](https://github.com/xapon)
-* **LDAP**: Define LogDisplayPlatform Admin permission in ldap group mappings [#2469](https://github.com/logdisplayplatform/logdisplayplatform/issues/2496), PR [#12622](https://github.com/logdisplayplatform/logdisplayplatform/issues/12622)
-* **Cloudwatch**: CloudWatch GetMetricData support [#11487](https://github.com/logdisplayplatform/logdisplayplatform/issues/11487), thx [@mtanda](https://github.com/mtanda)
-* **Configuration**: Allow auto-assigning users to specific organization (other than Main. Org) [#1823](https://github.com/logdisplayplatform/logdisplayplatform/issues/1823) [#12801](https://github.com/logdisplayplatform/logdisplayplatform/issues/12801), thx [@gzzo](https://github.com/gzzo) and [@ofosos](https://github.com/ofosos)
-
-### Minor
-
-* **Api**: Delete nonexistent datasource should return 404 [#12313](https://github.com/logdisplayplatform/logdisplayplatform/issues/12313), thx [@AustinWinstanley](https://github.com/AustinWinstanley)
-* **Dashboard**: Fix selecting current dashboard from search should not reload dashboard [#12248](https://github.com/logdisplayplatform/logdisplayplatform/issues/12248)
-* **Singlestat**: Make colorization of prefix and postfix optional in singlestat [#11892](https://github.com/logdisplayplatform/logdisplayplatform/pull/11892), thx [@ApsOps](https://github.com/ApsOps)
-* **Table**: Make table sorting stable when null values exist [#12362](https://github.com/logdisplayplatform/logdisplayplatform/pull/12362), thx [@bz2](https://github.com/bz2)
-* **Prometheus**: Fix graph panel bar width issue in aligned prometheus queries [#12379](https://github.com/logdisplayplatform/logdisplayplatform/issues/12379)
-* **Prometheus**: Heatmap - fix unhandled error when some points are missing [#12484](https://github.com/logdisplayplatform/logdisplayplatform/issues/12484)
-* **Prometheus**: Add $interval, $interval_ms, $range, and $range_ms support for dashboard and template queries [#12597](https://github.com/logdisplayplatform/logdisplayplatform/issues/12597)
-* **Variables**: Skip unneeded extra query request when de-selecting variable values used for repeated panels [#8186](https://github.com/logdisplayplatform/logdisplayplatform/issues/8186), thx [@mtanda](https://github.com/mtanda)
-* **Postgres/MySQL/MSSQL**: Add previous fill mode to $__timeGroup macro which will fill in previously seen value when point is missing [#12756](https://github.com/logdisplayplatform/logdisplayplatform/issues/12756), thx [@svenklemm](https://github.com/svenklemm)
-* **Postgres/MySQL/MSSQL**: Use floor rounding in $__timeGroup macro function [#12460](https://github.com/logdisplayplatform/logdisplayplatform/issues/12460), thx [@svenklemm](https://github.com/svenklemm)
-* **Postgres/MySQL/MSSQL**: Use metric column as prefix when returning multiple value columns [#12727](https://github.com/logdisplayplatform/logdisplayplatform/issues/12727), thx [@svenklemm](https://github.com/svenklemm)
-* **Postgres/MySQL/MSSQL**: New $__timeGroupAlias macro. Postgres $__timeGroup no longer automatically adds time column alias [#12749](https://github.com/logdisplayplatform/logdisplayplatform/issues/12749), thx [@svenklemm](https://github.com/svenklemm)
-* **Postgres/MySQL/MSSQL**: Escape single quotes in variables [#12785](https://github.com/logdisplayplatform/logdisplayplatform/issues/12785), thx [@eMerzh](https://github.com/eMerzh)
-* **MySQL/MSSQL**: Use datetime format instead of epoch for $__timeFilter, $__timeFrom and $__timeTo macros [#11618](https://github.com/logdisplayplatform/logdisplayplatform/issues/11618) [#11619](https://github.com/logdisplayplatform/logdisplayplatform/issues/11619), thx [@AustinWinstanley](https://github.com/AustinWinstanley)
-* **Postgres**: Escape ssl mode parameter in connectionstring [#12644](https://github.com/logdisplayplatform/logdisplayplatform/issues/12644), thx [@yogyrahmawan](https://github.com/yogyrahmawan)
-* **Github OAuth**: Allow changes of user info at Github to be synched to LogDisplayPlatform when signing in [#11818](https://github.com/logdisplayplatform/logdisplayplatform/issues/11818), thx [@rwaweber](https://github.com/rwaweber)
-* **Alerting**: Fix diff and percent_diff reducers [#11563](https://github.com/logdisplayplatform/logdisplayplatform/issues/11563), thx [@jessetane](https://github.com/jessetane)
-* **Units**: Polish złoty currency [#12691](https://github.com/logdisplayplatform/logdisplayplatform/pull/12691), thx [@mwegrzynek](https://github.com/mwegrzynek)
-* **Cloudwatch**: Improved error handling [#12489](https://github.com/logdisplayplatform/logdisplayplatform/issues/12489), thx [@mtanda](https://github.com/mtanda)
-* **Cloudwatch**: AppSync metrics and dimensions [#12300](https://github.com/logdisplayplatform/logdisplayplatform/issues/12300), thx [@franciscocpg](https://github.com/franciscocpg)
-* **Cloudwatch**: Direct Connect metrics and dimensions [#12762](https://github.com/logdisplayplatform/logdisplayplatform/pulls/12762), thx [@mindriot88](https://github.com/mindriot88)
-* **Cloudwatch**: Added BurstBalance metric to list of AWS RDS metrics [#12561](https://github.com/logdisplayplatform/logdisplayplatform/pulls/12561), thx [@activeshadow](https://github.com/activeshadow)
-* **Cloudwatch**: Add new Redshift metrics and dimensions [#12063](https://github.com/logdisplayplatform/logdisplayplatform/pulls/12063), thx [@A21z](https://github.com/A21z)
-* **Table**: Adjust header contrast for the light theme [#12668](https://github.com/logdisplayplatform/logdisplayplatform/issues/12668)
-* **Table**: Fix link color when using light theme and thresholds in use [#12766](https://github.com/logdisplayplatform/logdisplayplatform/issues/12766)
-* **Elasticsearch**: For alerting/backend, support having index name to the right of pattern in index pattern [#12731](https://github.com/logdisplayplatform/logdisplayplatform/issues/12731)
-* **OAuth**: Fix overriding tls_skip_verify_insecure using environment variable [#12747](https://github.com/logdisplayplatform/logdisplayplatform/issues/12747), thx [@jangaraj](https://github.com/jangaraj)
-* **Units**: Change units to include characters for power of 2 and 3 [#12744](https://github.com/logdisplayplatform/logdisplayplatform/pull/12744), thx [@Worty](https://github.com/Worty)
-* **Graph**: Option to hide series from tooltip [#3341](https://github.com/logdisplayplatform/logdisplayplatform/issues/3341), thx [@mtanda](https://github.com/mtanda)
-* **UI**: Fix iOS home screen "app" icon and Windows 10 app experience [#12752](https://github.com/logdisplayplatform/logdisplayplatform/issues/12752), thx [@andig](https://github.com/andig)
-* **Datasource**: Fix UI issue with secret fields after updating datasource [#11270](https://github.com/logdisplayplatform/logdisplayplatform/issues/11270)
-
-### Breaking changes
-
-* Postgres datasource no longer automatically adds time column alias when using the $__timeGroup alias. However, there's code in place which should make this change backward compatible and shouldn't create any issues.
-
-### New experimental features
-
-These are new features that's still being worked on and are in an experimental phase. We incourage users to try these out and provide any feedback in related issue.
-
-* **Dashboard**: Auto fit dashboard panels to optimize space used for current TV / Monitor [#12768](https://github.com/logdisplayplatform/logdisplayplatform/issues/12768)
-
-# 5.2.2 (2018-07-25)
-
-### Minor
-
-* **Prometheus**: Fix graph panel bar width issue in aligned prometheus queries [#12379](https://github.com/logdisplayplatform/logdisplayplatform/issues/12379)
-* **Dashboard**: Dashboard links not updated when changing variables [#12506](https://github.com/logdisplayplatform/logdisplayplatform/issues/12506)
-* **Postgres/MySQL/MSSQL**: Fix connection leak [#12636](https://github.com/logdisplayplatform/logdisplayplatform/issues/12636) [#9827](https://github.com/logdisplayplatform/logdisplayplatform/issues/9827)
-* **Plugins**: Fix loading of external plugins [#12551](https://github.com/logdisplayplatform/logdisplayplatform/issues/12551)
-* **Dashboard**: Remove unwanted scrollbars in embedded panels [#12589](https://github.com/logdisplayplatform/logdisplayplatform/issues/12589)
-* **Prometheus**: Prevent error using $__interval_ms in query [#12533](https://github.com/logdisplayplatform/logdisplayplatform/pull/12533), thx [@mtanda](https://github.com/mtanda)
-
-# 5.2.1 (2018-06-29)
-
-### Minor
-
-* **Auth Proxy**: Important security fix for whitelist of IP address feature [#12444](https://github.com/logdisplayplatform/logdisplayplatform/pull/12444)
-* **UI**: Fix - LogDisplayPlatform footer overlapping page [#12430](https://github.com/logdisplayplatform/logdisplayplatform/issues/12430)
-* **Logging**: Errors should be reported before crashing [#12438](https://github.com/logdisplayplatform/logdisplayplatform/issues/12438)
-
-# 5.2.0-stable (2018-06-27)
-
-### Minor
-
-* **Plugins**: Handle errors correctly when loading datasource plugin [#12383](https://github.com/logdisplayplatform/logdisplayplatform/pull/12383) thx [@rozetko](https://github.com/rozetko)
-* **Render**: Enhance error message if phantomjs executable is not found [#11868](https://github.com/logdisplayplatform/logdisplayplatform/issues/11868)
-* **Dashboard**: Set correct text in drop down when variable is present in url [#11968](https://github.com/logdisplayplatform/logdisplayplatform/issues/11968)
-
-### 5.2.0-beta3 fixes
-
-* **LDAP**: Handle "dn" ldap attribute more gracefully [#12385](https://github.com/logdisplayplatform/logdisplayplatform/pull/12385), reverts [#10970](https://github.com/logdisplayplatform/logdisplayplatform/pull/10970)
-
-# 5.2.0-beta3 (2018-06-21)
-
-### Minor
-
-* **Build**: All rpm packages should be signed [#12359](https://github.com/logdisplayplatform/logdisplayplatform/issues/12359)
-
-# 5.2.0-beta2 (2018-06-20)
+# 5.2.0 (unreleased)
 
 ### New Features
 
@@ -95,7 +6,6 @@ These are new features that's still being worked on and are in an experimental p
 
 ### Minor
 
-* **Permissions**: Important security fix for API keys with viewer role [#12343](https://github.com/logdisplayplatform/logdisplayplatform/issues/12343)
 * **Dashboard**: Fix so panel titles doesn't wrap [#11074](https://github.com/logdisplayplatform/logdisplayplatform/issues/11074)
 * **Dashboard**: Prevent double-click when saving dashboard [#11963](https://github.com/logdisplayplatform/logdisplayplatform/issues/11963)
 * **Dashboard**: AutoFocus the add-panel search filter [#12189](https://github.com/logdisplayplatform/logdisplayplatform/pull/12189) thx [@ryantxu](https://github.com/ryantxu)
@@ -105,24 +15,12 @@ These are new features that's still being worked on and are in an experimental p
 * **Influxdb**: Add support for mode function [#12286](https://github.com/logdisplayplatform/logdisplayplatform/issues/12286)
 * **Cloudwatch**: Fixes panic caused by bad timerange settings [#12199](https://github.com/logdisplayplatform/logdisplayplatform/issues/12199)
 * **Auth Proxy**: Whitelist proxy IP address instead of client IP address [#10707](https://github.com/logdisplayplatform/logdisplayplatform/issues/10707)
-* **User Management**: Make sure that a user always has a current org assigned [#11076](https://github.com/logdisplayplatform/logdisplayplatform/issues/11076)
-* **Snapshots**: Fix: annotations not properly extracted leading to incorrect rendering of annotations [#12278](https://github.com/logdisplayplatform/logdisplayplatform/issues/12278)
-* **LDAP**: Allow use of DN in group_search_filter_user_attribute and member_of [#3132](https://github.com/logdisplayplatform/logdisplayplatform/issues/3132), thx [@mmolnar](https://github.com/mmolnar)
-* **Graph**: Fix legend decimals precision calculation [#11792](https://github.com/logdisplayplatform/logdisplayplatform/issues/11792)
-* **Dashboard**: Make sure to process panels in collapsed rows when exporting dashboard [#12256](https://github.com/logdisplayplatform/logdisplayplatform/issues/12256)
-
-### 5.2.0-beta1 fixes
-
-* **Dashboard**: Dashboard link doesn't work when "As dropdown" option is checked [#12315](https://github.com/logdisplayplatform/logdisplayplatform/issues/12315)
-* **Dashboard**: Fix regressions after save modal changes, including adhoc template issues [#12240](https://github.com/logdisplayplatform/logdisplayplatform/issues/12240)
-* **Docker**: Config keys ending with _FILE are not respected [#170](https://github.com/logdisplayplatform/logdisplayplatform-docker/issues/170)
 
 # 5.2.0-beta1 (2018-06-05)
 
 ### New Features
 
 * **Elasticsearch**: Alerting support [#5893](https://github.com/logdisplayplatform/logdisplayplatform/issues/5893), thx [@WPH95](https://github.com/WPH95)
-* **Build**: Crosscompile and packages LogDisplayPlatform on arm, windows, linux and darwin [#11920](https://github.com/logdisplayplatform/logdisplayplatform/pull/11920), thx [@fg2it](https://github.com/fg2it)
 * **Login**: Change admin password after first login [#11882](https://github.com/logdisplayplatform/logdisplayplatform/issues/11882)
 * **Alert list panel**: Updated to support filtering alerts by name, dashboard title, folder, tags [#11500](https://github.com/logdisplayplatform/logdisplayplatform/issues/11500), [#8168](https://github.com/logdisplayplatform/logdisplayplatform/issues/8168), [#6541](https://github.com/logdisplayplatform/logdisplayplatform/issues/6541)
 
@@ -157,14 +55,6 @@ These are new features that's still being worked on and are in an experimental p
 * **Provisioning**: Support symlinked files in dashboard provisioning config files [#11958](https://github.com/logdisplayplatform/logdisplayplatform/issues/11958)
 * **Dashboard list panel**: Search dashboards by folder [#11525](https://github.com/logdisplayplatform/logdisplayplatform/issues/11525)
 * **Sidenav**: Always show server admin link in sidenav if logdisplayplatform admin [#11657](https://github.com/logdisplayplatform/logdisplayplatform/issues/11657)
-
-# 5.1.5 (2018-06-27)
-
-* **Docker**: Config keys ending with _FILE are not respected [#170](https://github.com/logdisplayplatform/logdisplayplatform-docker/issues/170)
-
-# 5.1.4 (2018-06-19)
-
-* **Permissions**: Important security fix for API keys with viewer role [#12343](https://github.com/logdisplayplatform/logdisplayplatform/issues/12343)
 
 # 5.1.3 (2018-05-16)
 
@@ -1389,7 +1279,7 @@ LogDisplayPlatform 2.x is fundamentally different from 1.x; it now ships with an
 **New features**
 - [Issue #1623](https://github.com/logdisplayplatform/logdisplayplatform/issues/1623). Share Dashboard: Dashboard snapshot sharing (dash and data snapshot), save to local or save to public snapshot dashboard snapshots.raintank.io site
 - [Issue #1622](https://github.com/logdisplayplatform/logdisplayplatform/issues/1622). Share Panel: The share modal now has an embed option, gives you an iframe that you can use to embedd a single graph on another web site
-- [Issue #718](https://github.com/logdisplayplatform/logdisplayplatform/issues/718).   Dashboard: When saving a dashboard and another user has made changes in between the user is prompted with a warning if he really wants to overwrite the other's changes
+- [Issue #718](https://github.com/logdisplayplatform/logdisplayplatform/issues/718).   Dashboard: When saving a dashboard and another user has made changes in between the user is promted with a warning if he really wants to overwrite the other's changes
 - [Issue #1331](https://github.com/logdisplayplatform/logdisplayplatform/issues/1331). Graph & Singlestat: New axis/unit format selector and more units (kbytes, Joule, Watt, eV), and new design for graph axis & grid tab and single stat options tab views
 - [Issue #1241](https://github.com/logdisplayplatform/logdisplayplatform/issues/1242). Timepicker: New option in timepicker (under dashboard settings), to change ``now`` to be for example ``now-1m``, useful when you want to ignore last minute because it contains incomplete data
 - [Issue #171](https://github.com/logdisplayplatform/logdisplayplatform/issues/171).   Panel: Different time periods, panels can override dashboard relative time and/or add a time shift
@@ -1847,4 +1737,3 @@ Thanks to everyone who contributed fixes and provided feedback :+1:
 # 1.0.0 (2014-01-19)
 
 First public release
-

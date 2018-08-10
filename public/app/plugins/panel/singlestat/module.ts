@@ -198,8 +198,8 @@ class SingleStatCtrl extends MetricsPanelCtrl {
     this.setValueMapping(data);
   }
 
-  canModifyText() {
-    return !this.panel.gauge.show;
+  canChangeFontSize() {
+    return this.panel.gauge.show;
   }
 
   setColoring(options) {
@@ -405,6 +405,10 @@ class SingleStatCtrl extends MetricsPanelCtrl {
     elem = elem.find('.singlestat-panel');
 
     function applyColoringThresholds(value, valueString) {
+      if (!panel.colorValue) {
+        return valueString;
+      }
+
       var color = getColorForValue(data, value);
       if (color) {
         return '<span style="color:' + color + '">' + valueString + '</span>';
@@ -422,24 +426,15 @@ class SingleStatCtrl extends MetricsPanelCtrl {
       var body = '<div class="singlestat-panel-value-container">';
 
       if (panel.prefix) {
-        var prefix = panel.prefix;
-        if (panel.colorPrefix) {
-          prefix = applyColoringThresholds(data.value, panel.prefix);
-        }
+        var prefix = applyColoringThresholds(data.value, panel.prefix);
         body += getSpan('singlestat-panel-prefix', panel.prefixFontSize, prefix);
       }
 
-      var value = data.valueFormatted;
-      if (panel.colorValue) {
-        value = applyColoringThresholds(data.value, value);
-      }
+      var value = applyColoringThresholds(data.value, data.valueFormatted);
       body += getSpan('singlestat-panel-value', panel.valueFontSize, value);
 
       if (panel.postfix) {
-        var postfix = panel.postfix;
-        if (panel.colorPostfix) {
-          postfix = applyColoringThresholds(data.value, panel.postfix);
-        }
+        var postfix = applyColoringThresholds(data.value, panel.postfix);
         body += getSpan('singlestat-panel-postfix', panel.postfixFontSize, postfix);
       }
 

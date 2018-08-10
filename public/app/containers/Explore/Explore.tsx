@@ -1,33 +1,16 @@
 import React from 'react';
 import { hot } from 'react-hot-loader';
-import Select from 'react-select';
-
-import kbn from 'app/core/utils/kbn';
 import colors from 'app/core/utils/colors';
-import store from 'app/core/store';
 import TimeSeries from 'app/core/time_series2';
-import { decodePathComponent } from 'app/core/utils/location_util';
-import { parse as parseDate } from 'app/core/utils/datemath';
 
 import ElapsedTime from './ElapsedTime';
 import QueryRows from './QueryRows';
 import Graph from './Graph';
-import Logs from './Logs';
 import Table from './Table';
 import TimePicker, { DEFAULT_RANGE } from './TimePicker';
-import { ensureQueries, generateQueryKey, hasQuery } from './utils/query';
-
-const MAX_HISTORY_ITEMS = 100;
-
-function makeHints(hints) {
-  const hintsByIndex = [];
-  hints.forEach(hint => {
-    if (hint) {
-      hintsByIndex[hint.index] = hint;
-    }
-  });
-  return hintsByIndex;
-}
+import { DatasourceSrv } from 'app/features/plugins/datasource_srv';
+import { buildQueryOptions, ensureQueries, generateQueryKey, hasQuery } from './utils/query';
+import { decodePathComponent } from 'app/core/utils/location_util';
 
 function makeTimeSeriesList(dataList, options) {
   return dataList.map((seriesData, index) => {
@@ -47,151 +30,75 @@ function makeTimeSeriesList(dataList, options) {
   });
 }
 
-function parseUrlState(initial: string | undefined) {
-  if (initial) {
-    try {
-      const parsed = JSON.parse(decodePathComponent(initial));
-      return {
-        datasource: parsed.datasource,
-        queries: parsed.queries.map(q => q.query),
-        range: parsed.range,
-      };
-    } catch (e) {
-      console.error(e);
-    }
+function parseInitialState(initial) {
+  try {
+    const parsed = JSON.parse(decodePathComponent(initial));
+    return {
+      queries: parsed.queries.map(q => q.query),
+      range: parsed.range,
+    };
+  } catch (e) {
+    console.error(e);
+    return { queries: [], range: DEFAULT_RANGE };
   }
-  return { datasource: null, queries: [], range: DEFAULT_RANGE };
 }
 
 interface IExploreState {
   datasource: any;
   datasourceError: any;
-  datasourceLoading: boolean | null;
-  datasourceMissing: boolean;
+  datasourceLoading: any;
   graphResult: any;
-  history: any[];
-  initialDatasource?: string;
   latency: number;
   loading: any;
-  logsResult: any;
-  queries: any[];
-  queryErrors: any[];
-  queryHints: any[];
+  queries: any;
+  queryError: any;
   range: any;
   requestOptions: any;
   showingGraph: boolean;
-  showingLogs: boolean;
   showingTable: boolean;
-  supportsGraph: boolean | null;
-  supportsLogs: boolean | null;
-  supportsTable: boolean | null;
   tableResult: any;
 }
 
+// @observer
 export class Explore extends React.Component<any, IExploreState> {
-  el: any;
+  datasourceSrv: DatasourceSrv;
 
   constructor(props) {
     super(props);
-    const initialState: IExploreState = props.initialState;
-    const { datasource, queries, range } = parseUrlState(props.routeParams.state);
+    const { range, queries } = parseInitialState(props.routeParams.initial);
     this.state = {
       datasource: null,
       datasourceError: null,
-      datasourceLoading: null,
-      datasourceMissing: false,
+      datasourceLoading: true,
       graphResult: null,
-      initialDatasource: datasource,
-      history: [],
       latency: 0,
       loading: false,
-      logsResult: null,
       queries: ensureQueries(queries),
-      queryErrors: [],
-      queryHints: [],
+      queryError: null,
       range: range || { ...DEFAULT_RANGE },
       requestOptions: null,
       showingGraph: true,
-      showingLogs: true,
       showingTable: true,
-      supportsGraph: null,
-      supportsLogs: null,
-      supportsTable: null,
       tableResult: null,
-      ...initialState,
+      ...props.initialState,
     };
   }
 
   async componentDidMount() {
-    const { datasourceSrv } = this.props;
-    const { initialDatasource } = this.state;
-    if (!datasourceSrv) {
-      throw new Error('No datasource service passed as props.');
-    }
-    const datasources = datasourceSrv.getExploreSources();
-    if (datasources.length > 0) {
-      this.setState({ datasourceLoading: true });
-      // Priority: datasource in url, default datasource, first explore datasource
-      let datasource;
-      if (initialDatasource) {
-        datasource = await datasourceSrv.get(initialDatasource);
-      } else {
-        datasource = await datasourceSrv.get();
-      }
-      if (!datasource.meta.explore) {
-        datasource = await datasourceSrv.get(datasources[0].name);
-      }
-      this.setDatasource(datasource);
+    const datasource = await this.props.datasourceSrv.get();
+    const testResult = await datasource.testDatasource();
+    if (testResult.status === 'success') {
+      this.setState({ datasource, datasourceError: null, datasourceLoading: false }, () => this.handleSubmit());
     } else {
-      this.setState({ datasourceMissing: true });
+      this.setState({ datasource: null, datasourceError: testResult.message, datasourceLoading: false });
     }
   }
 
   componentDidCatch(error) {
-    this.setState({ datasourceError: error });
     console.error(error);
   }
 
-  async setDatasource(datasource) {
-    const supportsGraph = datasource.meta.metrics;
-    const supportsLogs = datasource.meta.logs;
-    const supportsTable = datasource.meta.metrics;
-    const datasourceId = datasource.meta.id;
-    let datasourceError = null;
-
-    try {
-      const testResult = await datasource.testDatasource();
-      datasourceError = testResult.status === 'success' ? null : testResult.message;
-    } catch (error) {
-      datasourceError = (error && error.statusText) || error;
-    }
-
-    const historyKey = `logdisplayplatform.explore.history.${datasourceId}`;
-    const history = store.getObject(historyKey, []);
-
-    if (datasource.init) {
-      datasource.init();
-    }
-
-    this.setState(
-      {
-        datasource,
-        datasourceError,
-        history,
-        supportsGraph,
-        supportsLogs,
-        supportsTable,
-        datasourceLoading: false,
-      },
-      () => datasourceError === null && this.onSubmit()
-    );
-  }
-
-  getRef = el => {
-    this.el = el;
-  };
-
-  onAddQueryRow = index => {
+  handleAddQueryRow = index => {
     const { queries } = this.state;
     const nextQueries = [
       ...queries.slice(0, index + 1),
@@ -201,250 +108,115 @@ export class Explore extends React.Component<any, IExploreState> {
     this.setState({ queries: nextQueries });
   };
 
-  onChangeDatasource = async option => {
-    this.setState({
-      datasource: null,
-      datasourceError: null,
-      datasourceLoading: true,
-      graphResult: null,
-      logsResult: null,
-      queryErrors: [],
-      queryHints: [],
-      tableResult: null,
-    });
-    const datasource = await this.props.datasourceSrv.get(option.value);
-    this.setDatasource(datasource);
-  };
-
-  onChangeQuery = (value: string, index: number, override?: boolean) => {
+  handleChangeQuery = (query, index) => {
     const { queries } = this.state;
-    let { queryErrors, queryHints } = this.state;
-    const prevQuery = queries[index];
-    const edited = override ? false : prevQuery.query !== value;
     const nextQuery = {
       ...queries[index],
-      edited,
-      query: value,
+      query,
     };
     const nextQueries = [...queries];
     nextQueries[index] = nextQuery;
-    if (override) {
-      queryErrors = [];
-      queryHints = [];
-    }
-    this.setState(
-      {
-        queryErrors,
-        queryHints,
-        queries: nextQueries,
-      },
-      override ? () => this.onSubmit() : undefined
-    );
+    this.setState({ queries: nextQueries });
   };
 
-  onChangeTime = nextRange => {
+  handleChangeTime = nextRange => {
     const range = {
       from: nextRange.from,
       to: nextRange.to,
     };
-    this.setState({ range }, () => this.onSubmit());
+    this.setState({ range }, () => this.handleSubmit());
   };
 
-  onClickClear = () => {
-    this.setState({
-      graphResult: null,
-      logsResult: null,
-      queries: ensureQueries(),
-      tableResult: null,
-    });
-  };
-
-  onClickCloseSplit = () => {
+  handleClickCloseSplit = () => {
     const { onChangeSplit } = this.props;
     if (onChangeSplit) {
       onChangeSplit(false);
     }
   };
 
-  onClickGraphButton = () => {
+  handleClickGraphButton = () => {
     this.setState(state => ({ showingGraph: !state.showingGraph }));
   };
 
-  onClickLogsButton = () => {
-    this.setState(state => ({ showingLogs: !state.showingLogs }));
-  };
-
-  onClickSplit = () => {
+  handleClickSplit = () => {
     const { onChangeSplit } = this.props;
     if (onChangeSplit) {
       onChangeSplit(true, this.state);
     }
   };
 
-  onClickTableButton = () => {
+  handleClickTableButton = () => {
     this.setState(state => ({ showingTable: !state.showingTable }));
   };
 
-  onClickTableCell = (columnKey: string, rowValue: string) => {
-    this.onModifyQueries({ type: 'ADD_FILTER', key: columnKey, value: rowValue });
-  };
-
-  onModifyQueries = (action: object, index?: number) => {
-    const { datasource, queries } = this.state;
-    if (datasource && datasource.modifyQuery) {
-      let nextQueries;
-      if (index === undefined) {
-        // Modify all queries
-        nextQueries = queries.map(q => ({
-          ...q,
-          edited: false,
-          query: datasource.modifyQuery(q.query, action),
-        }));
-      } else {
-        // Modify query only at index
-        nextQueries = [
-          ...queries.slice(0, index),
-          {
-            ...queries[index],
-            edited: false,
-            query: datasource.modifyQuery(queries[index].query, action),
-          },
-          ...queries.slice(index + 1),
-        ];
-      }
-      this.setState({ queries: nextQueries }, () => this.onSubmit());
-    }
-  };
-
-  onRemoveQueryRow = index => {
+  handleRemoveQueryRow = index => {
     const { queries } = this.state;
     if (queries.length <= 1) {
       return;
     }
     const nextQueries = [...queries.slice(0, index), ...queries.slice(index + 1)];
-    this.setState({ queries: nextQueries }, () => this.onSubmit());
+    this.setState({ queries: nextQueries }, () => this.handleSubmit());
   };
 
-  onSubmit = () => {
-    const { showingLogs, showingGraph, showingTable, supportsGraph, supportsLogs, supportsTable } = this.state;
-    if (showingTable && supportsTable) {
+  handleSubmit = () => {
+    const { showingGraph, showingTable } = this.state;
+    if (showingTable) {
       this.runTableQuery();
     }
-    if (showingGraph && supportsGraph) {
+    if (showingGraph) {
       this.runGraphQuery();
-    }
-    if (showingLogs && supportsLogs) {
-      this.runLogsQuery();
     }
   };
 
-  onQuerySuccess(datasourceId: string, queries: any[]): void {
-    // save queries to history
-    let { datasource, history } = this.state;
-    if (datasource.meta.id !== datasourceId) {
-      // Navigated away, queries did not matter
-      return;
-    }
-    const ts = Date.now();
-    queries.forEach(q => {
-      const { query } = q;
-      history = [{ query, ts }, ...history];
-    });
-    if (history.length > MAX_HISTORY_ITEMS) {
-      history = history.slice(0, MAX_HISTORY_ITEMS);
-    }
-    // Combine all queries of a datasource type into one history
-    const historyKey = `logdisplayplatform.explore.history.${datasourceId}`;
-    store.setObject(historyKey, history);
-    this.setState({ history });
-  }
-
-  buildQueryOptions(targetOptions: { format: string; hinting?: boolean; instant?: boolean }) {
-    const { datasource, queries, range } = this.state;
-    const resolution = this.el.offsetWidth;
-    const absoluteRange = {
-      from: parseDate(range.from, false),
-      to: parseDate(range.to, true),
-    };
-    const { interval } = kbn.calculateInterval(absoluteRange, resolution, datasource.interval);
-    const targets = queries.map(q => ({
-      ...targetOptions,
-      expr: q.query,
-    }));
-    return {
-      interval,
-      range,
-      targets,
-    };
-  }
-
   async runGraphQuery() {
-    const { datasource, queries } = this.state;
+    const { datasource, queries, range } = this.state;
     if (!hasQuery(queries)) {
       return;
     }
-    this.setState({ latency: 0, loading: true, graphResult: null, queryErrors: [], queryHints: [] });
+    this.setState({ latency: 0, loading: true, graphResult: null, queryError: null });
     const now = Date.now();
-    const options = this.buildQueryOptions({ format: 'time_series', instant: false, hinting: true });
+    const options = buildQueryOptions({
+      format: 'time_series',
+      interval: datasource.interval,
+      instant: false,
+      range,
+      queries: queries.map(q => q.query),
+    });
     try {
       const res = await datasource.query(options);
       const result = makeTimeSeriesList(res.data, options);
-      const queryHints = res.hints ? makeHints(res.hints) : [];
       const latency = Date.now() - now;
-      this.setState({ latency, loading: false, graphResult: result, queryHints, requestOptions: options });
-      this.onQuerySuccess(datasource.meta.id, queries);
+      this.setState({ latency, loading: false, graphResult: result, requestOptions: options });
     } catch (response) {
       console.error(response);
       const queryError = response.data ? response.data.error : response;
-      this.setState({ loading: false, queryErrors: [queryError] });
+      this.setState({ loading: false, queryError });
     }
   }
 
   async runTableQuery() {
-    const { datasource, queries } = this.state;
+    const { datasource, queries, range } = this.state;
     if (!hasQuery(queries)) {
       return;
     }
-    this.setState({ latency: 0, loading: true, queryErrors: [], queryHints: [], tableResult: null });
+    this.setState({ latency: 0, loading: true, queryError: null, tableResult: null });
     const now = Date.now();
-    const options = this.buildQueryOptions({
+    const options = buildQueryOptions({
       format: 'table',
+      interval: datasource.interval,
       instant: true,
+      range,
+      queries: queries.map(q => q.query),
     });
     try {
       const res = await datasource.query(options);
       const tableModel = res.data[0];
       const latency = Date.now() - now;
       this.setState({ latency, loading: false, tableResult: tableModel, requestOptions: options });
-      this.onQuerySuccess(datasource.meta.id, queries);
     } catch (response) {
       console.error(response);
       const queryError = response.data ? response.data.error : response;
-      this.setState({ loading: false, queryErrors: [queryError] });
-    }
-  }
-
-  async runLogsQuery() {
-    const { datasource, queries } = this.state;
-    if (!hasQuery(queries)) {
-      return;
-    }
-    this.setState({ latency: 0, loading: true, queryErrors: [], queryHints: [], logsResult: null });
-    const now = Date.now();
-    const options = this.buildQueryOptions({
-      format: 'logs',
-    });
-
-    try {
-      const res = await datasource.query(options);
-      const logsData = res.data;
-      const latency = Date.now() - now;
-      this.setState({ latency, loading: false, logsResult: logsData, requestOptions: options });
-      this.onQuerySuccess(datasource.meta.id, queries);
-    } catch (response) {
-      console.error(response);
-      const queryError = response.data ? response.data.error : response;
-      this.setState({ loading: false, queryErrors: [queryError] });
+      this.setState({ loading: false, queryError });
     }
   }
 
@@ -454,150 +226,99 @@ export class Explore extends React.Component<any, IExploreState> {
   };
 
   render() {
-    const { datasourceSrv, position, split } = this.props;
+    const { position, split } = this.props;
     const {
       datasource,
       datasourceError,
       datasourceLoading,
-      datasourceMissing,
       graphResult,
-      history,
       latency,
       loading,
-      logsResult,
       queries,
-      queryErrors,
-      queryHints,
+      queryError,
       range,
       requestOptions,
       showingGraph,
-      showingLogs,
       showingTable,
-      supportsGraph,
-      supportsLogs,
-      supportsTable,
       tableResult,
     } = this.state;
     const showingBoth = showingGraph && showingTable;
     const graphHeight = showingBoth ? '200px' : '400px';
     const graphButtonActive = showingBoth || showingGraph ? 'active' : '';
-    const logsButtonActive = showingLogs ? 'active' : '';
     const tableButtonActive = showingBoth || showingTable ? 'active' : '';
     const exploreClass = split ? 'explore explore-split' : 'explore';
-    const datasources = datasourceSrv.getExploreSources().map(ds => ({
-      value: ds.name,
-      label: ds.name,
-    }));
-    const selectedDatasource = datasource ? datasource.name : undefined;
-
     return (
-      <div className={exploreClass} ref={this.getRef}>
+      <div className={exploreClass}>
         <div className="navbar">
           {position === 'left' ? (
             <div>
               <a className="navbar-page-btn">
                 <i className="fa fa-rocket" />
-                Explore
+                探索
               </a>
             </div>
           ) : (
             <div className="navbar-buttons explore-first-button">
-              <button className="btn navbar-button" onClick={this.onClickCloseSplit}>
-                Close Split
+              <button className="btn navbar-button" onClick={this.handleClickCloseSplit}>
+                关闭分隔
               </button>
             </div>
           )}
-          {!datasourceMissing ? (
-            <div className="navbar-buttons">
-              <Select
-                className="datasource-picker"
-                clearable={false}
-                onChange={this.onChangeDatasource}
-                options={datasources}
-                placeholder="Loading datasources..."
-                value={selectedDatasource}
-              />
-            </div>
-          ) : null}
           <div className="navbar__spacer" />
           {position === 'left' && !split ? (
             <div className="navbar-buttons">
-              <button className="btn navbar-button" onClick={this.onClickSplit}>
-                Split
+              <button className="btn navbar-button" onClick={this.handleClickSplit}>
+                分隔
               </button>
             </div>
           ) : null}
-          <TimePicker range={range} onChangeTime={this.onChangeTime} />
           <div className="navbar-buttons">
-            <button className="btn navbar-button navbar-button--no-icon" onClick={this.onClickClear}>
-              Clear All
+            <button className={`btn navbar-button ${graphButtonActive}`} onClick={this.handleClickGraphButton}>
+              图
+            </button>
+            <button className={`btn navbar-button ${tableButtonActive}`} onClick={this.handleClickTableButton}>
+              表格
             </button>
           </div>
+          <TimePicker range={range} onChangeTime={this.handleChangeTime} />
           <div className="navbar-buttons relative">
-            <button className="btn navbar-button--primary" onClick={this.onSubmit}>
-              Run Query <i className="fa fa-level-down run-icon" />
+            <button className="btn navbar-button--primary" onClick={this.handleSubmit}>
+              运行查询 <i className="fa fa-level-down run-icon" />
             </button>
             {loading || latency ? <ElapsedTime time={latency} className="text-info" /> : null}
           </div>
         </div>
 
-        {datasourceLoading ? <div className="explore-container">Loading datasource...</div> : null}
-
-        {datasourceMissing ? (
-          <div className="explore-container">Please add a datasource that supports Explore (e.g., Prometheus).</div>
-        ) : null}
+        {datasourceLoading ? <div className="explore-container">加载数据源 ...</div> : null}
 
         {datasourceError ? (
-          <div className="explore-container">Error connecting to datasource. [{datasourceError}]</div>
+          <div className="explore-container" title={datasourceError}>
+            连接数据源发生错误.
+          </div>
         ) : null}
 
-        {datasource && !datasourceError ? (
+        {datasource ? (
           <div className="explore-container">
             <QueryRows
-              history={history}
               queries={queries}
-              queryErrors={queryErrors}
-              queryHints={queryHints}
               request={this.request}
-              onAddQueryRow={this.onAddQueryRow}
-              onChangeQuery={this.onChangeQuery}
-              onClickHintFix={this.onModifyQueries}
-              onExecuteQuery={this.onSubmit}
-              onRemoveQueryRow={this.onRemoveQueryRow}
+              onAddQueryRow={this.handleAddQueryRow}
+              onChangeQuery={this.handleChangeQuery}
+              onExecuteQuery={this.handleSubmit}
+              onRemoveQueryRow={this.handleRemoveQueryRow}
             />
-            <div className="result-options">
-              {supportsGraph ? (
-                <button className={`btn navbar-button ${graphButtonActive}`} onClick={this.onClickGraphButton}>
-                  Graph
-                </button>
-              ) : null}
-              {supportsTable ? (
-                <button className={`btn navbar-button ${tableButtonActive}`} onClick={this.onClickTableButton}>
-                  Table
-                </button>
-              ) : null}
-              {supportsLogs ? (
-                <button className={`btn navbar-button ${logsButtonActive}`} onClick={this.onClickLogsButton}>
-                  Logs
-                </button>
-              ) : null}
-            </div>
-
+            {queryError ? <div className="text-warning m-a-2">{queryError}</div> : null}
             <main className="m-t-2">
-              {supportsGraph && showingGraph ? (
+              {showingGraph ? (
                 <Graph
                   data={graphResult}
-                  height={graphHeight}
-                  loading={loading}
                   id={`explore-graph-${position}`}
                   options={requestOptions}
+                  height={graphHeight}
                   split={split}
                 />
               ) : null}
-              {supportsTable && showingTable ? (
-                <Table className="m-t-3" data={tableResult} loading={loading} onClickCell={this.onClickTableCell} />
-              ) : null}
-              {supportsLogs && showingLogs ? <Logs data={logsResult} loading={loading} /> : null}
+              {showingTable ? <Table data={tableResult} className="m-t-3" /> : null}
             </main>
           </div>
         ) : null}

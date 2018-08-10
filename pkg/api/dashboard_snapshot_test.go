@@ -39,7 +39,7 @@ func TestDashboardSnapshotApiEndpoint(t *testing.T) {
 			return nil
 		})
 
-		teamResp := []*m.TeamDTO{}
+		teamResp := []*m.Team{}
 		bus.AddHandler("test", func(query *m.GetTeamsByUserQuery) error {
 			query.Result = teamResp
 			return nil

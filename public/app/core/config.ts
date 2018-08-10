@@ -1,18 +1,11 @@
 import _ from 'lodash';
 
-export interface BuildInfo {
-  version: string;
-  commit: string;
-  isEnterprise: boolean;
-  env: string;
-}
-
-export class Settings {
+class Settings {
   datasources: any;
   panels: any;
   appSubUrl: string;
   window_title_prefix: string;
-  buildInfo: BuildInfo;
+  buildInfo: any;
   new_panel_title: string;
   bootData: any;
   externalUserMngLinkUrl: string;
@@ -39,14 +32,7 @@ export class Settings {
       playlist_timespan: '1m',
       unsaved_changes_warning: true,
       appSubUrl: '',
-      buildInfo: {
-        version: 'v1.0',
-        commit: '1',
-        env: 'production',
-        isEnterprise: false,
-      },
     };
-
     _.extend(this, defaults, options);
   }
 }

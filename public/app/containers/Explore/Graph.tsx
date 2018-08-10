@@ -84,9 +84,7 @@ class Graph extends Component<any, any> {
 
   draw() {
     const { data, options: userOptions } = this.props;
-    const $el = $(`#${this.props.id}`);
     if (!data) {
-      $el.empty();
       return;
     }
     const series = data.map((ts: TimeSeries) => ({
@@ -95,6 +93,7 @@ class Graph extends Component<any, any> {
       data: ts.getFlotPairs('null'),
     }));
 
+    const $el = $(`#${this.props.id}`);
     const ticks = $el.width() / 100;
     let { from, to } = userOptions.range;
     if (!moment.isMoment(from)) {
@@ -124,14 +123,7 @@ class Graph extends Component<any, any> {
   }
 
   render() {
-    const { data, height, loading } = this.props;
-    if (!loading && data && data.length === 0) {
-      return (
-        <div className="panel-container">
-          <div className="muted m-a-1">The queries returned no time series to graph.</div>
-        </div>
-      );
-    }
+    const { data, height } = this.props;
     return (
       <div className="panel-container">
         <div id={this.props.id} className="explore-graph" style={{ height }} />

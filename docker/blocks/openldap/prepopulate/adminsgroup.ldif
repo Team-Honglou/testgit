@@ -1,0 +1,5 @@
+dn: cn=admins,dc=logdisplayplatform,dc=org
+cn: admins
+member: cn=ldapadmin,dc=logdisplayplatform,dc=org
+objectClass: groupOfNames
+objectClass: top

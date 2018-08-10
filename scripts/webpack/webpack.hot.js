@@ -20,7 +20,6 @@ module.exports = merge(common, {
     path: path.resolve(__dirname, '../../public/build'),
     filename: '[name].[hash].js',
     publicPath: "/public/build/",
-    pathinfo: false,
   },
 
   resolve: {
@@ -38,35 +37,25 @@ module.exports = merge(common, {
     }
   },
 
-  optimization: {
-    removeAvailableModules: false,
-    removeEmptyChunks: false,
-    splitChunks: false,
-  },
-
   module: {
     rules: [
       {
         test: /\.tsx?$/,
         exclude: /node_modules/,
-        use: [{
-          loader: 'babel-loader',
+        use: {
+          loader: 'awesome-typescript-loader',
           options: {
-            cacheDirectory: true,
-            babelrc: false,
-            plugins: [
-              'syntax-dynamic-import',
-              'react-hot-loader/babel'
-            ]
-          }
-        },
-        {
-          loader: 'ts-loader',
-          options: {
-            transpileOnly: true,
-            experimentalWatchApi: true
+            useCache: true,
+            useBabel: true,
+            babelOptions: {
+              babelrc: false,
+              plugins: [
+                'syntax-dynamic-import',
+                'react-hot-loader/babel'
+              ]
+            }
           },
-        }],
+        }
       },
       {
         test: /\.scss$/,

@@ -86,7 +86,9 @@ describe('given dashboard with repeated panels', () => {
       ],
     };
 
-    config.buildInfo.version = '3.0.2';
+    config.buildInfo = {
+      version: '3.0.2',
+    };
 
     //Stubs test function calls
     var datasourceSrvStub = { get: jest.fn(arg => getStub(arg)) };

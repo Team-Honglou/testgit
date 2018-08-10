@@ -63,7 +63,7 @@ type PlaylistDashboards []*PlaylistDashboard
 
 type UpdatePlaylistCommand struct {
 	OrgId    int64             `json:"-"`
-	Id       int64             `json:"id"`
+	Id       int64             `json:"id" binding:"Required"`
 	Name     string            `json:"name" binding:"Required"`
 	Interval string            `json:"interval"`
 	Items    []PlaylistItemDTO `json:"items"`

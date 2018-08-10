@@ -13,7 +13,6 @@ type IndexViewData struct {
 	Theme                   string
 	NewLogDisplayPlatformVersionExists bool
 	NewLogDisplayPlatformVersion       string
-	AppName                 string
 }
 
 type PluginCss struct {

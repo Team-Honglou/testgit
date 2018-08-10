@@ -38,11 +38,7 @@ export class VariableSrv {
       });
   }
 
-  onDashboardRefresh(evt, payload) {
-    if (payload && payload.fromVariableValueUpdated) {
-      return Promise.resolve({});
-    }
-
+  onDashboardRefresh() {
     var promises = this.variables.filter(variable => variable.refresh === 2).map(variable => {
       var previousOptions = variable.options.slice();
 
@@ -134,7 +130,7 @@ export class VariableSrv {
     return this.$q.all(promises).then(() => {
       if (emitChangeEvents) {
         this.$rootScope.$emit('template-variable-value-updated');
-        this.$rootScope.$broadcast('refresh', { fromVariableValueUpdated: true });
+        this.$rootScope.$broadcast('refresh');
       }
     });
   }

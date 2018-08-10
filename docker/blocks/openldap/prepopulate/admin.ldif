@@ -1,0 +1,10 @@
+dn: cn=ldapadmin,dc=logdisplayplatform,dc=org
+mail: ldapadmin@logdisplayplatform.com
+userPassword: logdisplayplatform
+objectClass: person
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+sn: ldapadmin
+cn: ldapadmin
+memberOf: cn=admins,dc=logdisplayplatform,dc=org

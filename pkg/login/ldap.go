@@ -163,7 +163,6 @@ func (a *ldapAuther) GetLogDisplayPlatformUserFor(ctx *m.ReqContext, ldapUser *L
 		Name:       fmt.Sprintf("%s %s", ldapUser.FirstName, ldapUser.LastName),
 		Login:      ldapUser.Username,
 		Email:      ldapUser.Email,
-		Groups:     ldapUser.MemberOf,
 		OrgRoles:   map[int64]m.RoleType{},
 	}
 
@@ -175,7 +174,6 @@ func (a *ldapAuther) GetLogDisplayPlatformUserFor(ctx *m.ReqContext, ldapUser *L
 
 		if ldapUser.isMemberOf(group.GroupDN) {
 			extUser.OrgRoles[group.OrgId] = group.OrgRole
-			extUser.IsLogDisplayPlatformAdmin = group.IsLogDisplayPlatformAdmin
 		}
 	}
 
@@ -191,18 +189,17 @@ func (a *ldapAuther) GetLogDisplayPlatformUserFor(ctx *m.ReqContext, ldapUser *L
 	}
 
 	// add/update user in logdisplayplatform
-	upsertUserCmd := &m.UpsertUserCommand{
+	userQuery := &m.UpsertUserCommand{
 		ReqContext:    ctx,
 		ExternalUser:  extUser,
 		SignupAllowed: setting.LdapAllowSignup,
 	}
-
-	err := bus.Dispatch(upsertUserCmd)
+	err := bus.Dispatch(userQuery)
 	if err != nil {
 		return nil, err
 	}
 
-	return upsertUserCmd.Result, nil
+	return userQuery.Result, nil
 }
 
 func (a *ldapAuther) serverBind() error {

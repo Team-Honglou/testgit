@@ -9,7 +9,6 @@ import (
 	m "github.com/logdisplayplatform/logdisplayplatform/pkg/models"
 	"github.com/logdisplayplatform/logdisplayplatform/pkg/services/session"
 	"github.com/logdisplayplatform/logdisplayplatform/pkg/setting"
-	"github.com/logdisplayplatform/logdisplayplatform/pkg/util"
 )
 
 type AuthOptions struct {
@@ -33,11 +32,6 @@ func getApiKey(c *m.ReqContext) string {
 	if len(parts) == 2 && parts[0] == "Bearer" {
 		key := parts[1]
 		return key
-	}
-
-	username, password, err := util.DecodeBasicAuthHeader(header)
-	if err == nil && username == "api_key" {
-		return password
 	}
 
 	return ""

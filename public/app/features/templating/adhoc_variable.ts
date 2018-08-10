@@ -3,7 +3,6 @@ import { Variable, assignModelProperties, variableTypes } from './variable';
 
 export class AdhocVariable implements Variable {
   filters: any[];
-  skipUrlSync: boolean;
 
   defaults = {
     type: 'adhoc',
@@ -12,7 +11,6 @@ export class AdhocVariable implements Variable {
     hide: 0,
     datasource: null,
     filters: [],
-    skipUrlSync: false,
   };
 
   /** @ngInject **/

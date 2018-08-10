@@ -4,11 +4,11 @@ import TableModel from 'app/core/table_model';
 export class ResultTransformer {
   constructor(private templateSrv) {}
 
-  transform(response: any, options: any): any[] {
+  transform(result: any, response: any, options: any) {
     let prometheusResult = response.data.data.result;
 
     if (options.format === 'table') {
-      return [this.transformMetricDataToTable(prometheusResult, options.responseListLength, options.refId)];
+      result.push(this.transformMetricDataToTable(prometheusResult, options.responseListLength, options.refId));
     } else if (options.format === 'heatmap') {
       let seriesList = [];
       prometheusResult.sort(sortSeriesByLabel);
@@ -16,35 +16,27 @@ export class ResultTransformer {
         seriesList.push(this.transformMetricData(metricData, options, options.start, options.end));
       }
       seriesList = this.transformToHistogramOverTime(seriesList);
-      return seriesList;
+      result.push(...seriesList);
     } else {
-      let seriesList = [];
       for (let metricData of prometheusResult) {
         if (response.data.data.resultType === 'matrix') {
-          seriesList.push(this.transformMetricData(metricData, options, options.start, options.end));
+          result.push(this.transformMetricData(metricData, options, options.start, options.end));
         } else if (response.data.data.resultType === 'vector') {
-          seriesList.push(this.transformInstantMetricData(metricData, options));
+          result.push(this.transformInstantMetricData(metricData, options));
         }
       }
-      return seriesList;
     }
-    return [];
   }
 
-  transformMetricData(metricData, options, start, end) {
+  transformMetricData(md, options, start, end) {
     let dps = [],
       metricLabel = null;
 
-    metricLabel = this.createMetricLabel(metricData.metric, options);
+    metricLabel = this.createMetricLabel(md.metric, options);
 
     const stepMs = parseInt(options.step) * 1000;
     let baseTimestamp = start * 1000;
-
-    if (metricData.values === undefined) {
-      throw new Error('Prometheus heatmap error: data should be a time series');
-    }
-
-    for (let value of metricData.values) {
+    for (let value of md.values) {
       let dp_value = parseFloat(value[1]);
       if (_.isNaN(dp_value)) {
         dp_value = null;
@@ -63,12 +55,7 @@ export class ResultTransformer {
       dps.push([null, t]);
     }
 
-    return {
-      datapoints: dps,
-      query: options.query,
-      responseIndex: options.responseIndex,
-      target: metricLabel,
-    };
+    return { target: metricLabel, datapoints: dps };
   }
 
   transformMetricDataToTable(md, resultCount: number, refId: string) {
@@ -94,7 +81,7 @@ export class ResultTransformer {
     table.columns.push({ text: 'Time', type: 'time' });
     _.each(sortedLabels, function(label, labelIndex) {
       metricLabels[label] = labelIndex + 1;
-      table.columns.push({ text: label, filterable: !label.startsWith('__') });
+      table.columns.push({ text: label });
     });
     let valueText = resultCount > 1 ? `Value #${refId}` : 'Value';
     table.columns.push({ text: valueText });
@@ -132,7 +119,7 @@ export class ResultTransformer {
       metricLabel = null;
     metricLabel = this.createMetricLabel(md.metric, options);
     dps.push([parseFloat(md.value[1]), md.value[0] * 1000]);
-    return { target: metricLabel, datapoints: dps, labels: md.metric };
+    return { target: metricLabel, datapoints: dps };
   }
 
   createMetricLabel(labelData, options) {
@@ -177,13 +164,8 @@ export class ResultTransformer {
     for (let i = seriesList.length - 1; i > 0; i--) {
       let topSeries = seriesList[i].datapoints;
       let bottomSeries = seriesList[i - 1].datapoints;
-      if (!topSeries || !bottomSeries) {
-        throw new Error('Prometheus heatmap transform error: data should be a time series');
-      }
-
       for (let j = 0; j < topSeries.length; j++) {
-        const bottomPoint = bottomSeries[j] || [0];
-        topSeries[j][0] -= bottomPoint[0];
+        topSeries[j][0] -= bottomSeries[j][0];
       }
     }
 

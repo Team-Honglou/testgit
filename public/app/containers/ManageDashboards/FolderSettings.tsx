@@ -53,7 +53,7 @@ export class FolderSettings extends React.Component<IContainerProps, any> {
         view.updatePathAndQuery(newUrl, {}, {});
 
         appEvents.emit('dashboard-saved');
-        appEvents.emit('alert-success', ['Folder saved']);
+        appEvents.emit('alert-success', ['文件夹已保存']);
       })
       .then(() => {
         return nav.initFolderNav(toJS(folder.folder), 'manage-folder-settings');
@@ -71,13 +71,13 @@ export class FolderSettings extends React.Component<IContainerProps, any> {
     const title = folder.folder.title;
 
     appEvents.emit('confirm-modal', {
-      title: 'Delete',
-      text: `Do you want to delete this folder and all its dashboards?`,
+      title: '删除',
+      text: `要删除此文件夹及其中所有仪表板吗?`,
       icon: 'fa-trash',
-      yesText: 'Delete',
+      yesText: '删除',
       onConfirm: () => {
         return folder.deleteFolder().then(() => {
-          appEvents.emit('alert-success', ['Folder Deleted', `${title} has been deleted`]);
+          appEvents.emit('alert-success', ['文件夹已删除', `${title} 已经被删除`]);
           view.updatePathAndQuery('dashboards', '', '');
         });
       },

@@ -153,7 +153,6 @@ func getFrontendSettingsMap(c *m.ReqContext) (map[string]interface{}, error) {
 			"latestVersion": plugins.LogDisplayPlatformLatestVersion,
 			"hasUpdate":     plugins.LogDisplayPlatformHasUpdate,
 			"env":           setting.Env,
-			"isEnterprise":  setting.IsEnterprise,
 		},
 	}
 

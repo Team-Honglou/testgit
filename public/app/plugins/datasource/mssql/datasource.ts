@@ -16,7 +16,7 @@ export class MssqlDatasource {
   interpolateVariable(value, variable) {
     if (typeof value === 'string') {
       if (variable.multi || variable.includeAll) {
-        return "'" + value.replace(/'/g, `''`) + "'";
+        return "'" + value + "'";
       } else {
         return value;
       }
@@ -31,7 +31,7 @@ export class MssqlDatasource {
         return value;
       }
 
-      return "'" + val.replace(/'/g, `''`) + "'";
+      return "'" + val + "'";
     });
     return quotedValues.join(',');
   }

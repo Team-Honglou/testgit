@@ -14,9 +14,9 @@ cd /go/src/github.com/logdisplayplatform/logdisplayplatform
 echo "current dir: $(pwd)"
 
 cd ..
-git clone -b master --single-branch git@github.com:logdisplayplatform/logdisplayplatform-enterprise.git --depth 10
+git clone -b ee_build --single-branch git@github.com:logdisplayplatform/logdisplayplatform-enterprise.git --depth 10
 cd logdisplayplatform-enterprise
-#git checkout 7fbae9c1be3467c4a39cf6ad85278a6896ceb49f
+git checkout 7fbae9c1be3467c4a39cf6ad85278a6896ceb49f
 ./build.sh
 
 cd ../logdisplayplatform

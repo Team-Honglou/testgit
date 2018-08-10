@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/facebookgo/inject"
-	"github.com/logdisplayplatform/logdisplayplatform/pkg/api/routing"
 	"github.com/logdisplayplatform/logdisplayplatform/pkg/bus"
 	"github.com/logdisplayplatform/logdisplayplatform/pkg/middleware"
 	"github.com/logdisplayplatform/logdisplayplatform/pkg/registry"
@@ -62,8 +61,8 @@ type LogDisplayPlatformServerImpl struct {
 	shutdownReason     string
 	shutdownInProgress bool
 
-	RouteRegister routing.RouteRegister `inject:""`
-	HttpServer    *api.HTTPServer       `inject:""`
+	RouteRegister api.RouteRegister `inject:""`
+	HttpServer    *api.HTTPServer   `inject:""`
 }
 
 func (g *LogDisplayPlatformServerImpl) Run() error {
@@ -76,7 +75,7 @@ func (g *LogDisplayPlatformServerImpl) Run() error {
 	serviceGraph := inject.Graph{}
 	serviceGraph.Provide(&inject.Object{Value: bus.GetBus()})
 	serviceGraph.Provide(&inject.Object{Value: g.cfg})
-	serviceGraph.Provide(&inject.Object{Value: routing.NewRouteRegister(middleware.RequestMetrics, middleware.RequestTracing)})
+	serviceGraph.Provide(&inject.Object{Value: api.NewRouteRegister(middleware.RequestMetrics, middleware.RequestTracing)})
 
 	// self registered services
 	services := registry.GetServices()
@@ -175,7 +174,7 @@ func (g *LogDisplayPlatformServerImpl) Shutdown(reason string) {
 	g.childRoutines.Wait()
 }
 
-func (g *LogDisplayPlatformServerImpl) Exit(reason error) int {
+func (g *LogDisplayPlatformServerImpl) Exit(reason error) {
 	// default exit code is 1
 	code := 1
 
@@ -185,7 +184,9 @@ func (g *LogDisplayPlatformServerImpl) Exit(reason error) int {
 	}
 
 	g.log.Error("Server shutdown", "reason", reason)
-	return code
+
+	log.Close()
+	os.Exit(code)
 }
 
 func (g *LogDisplayPlatformServerImpl) writePIDFile() {

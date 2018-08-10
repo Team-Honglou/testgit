@@ -5,7 +5,6 @@ import (
 )
 
 type CloudWatchQuery struct {
-	RefId              string
 	Region             string
 	Namespace          string
 	MetricName         string
@@ -14,8 +13,5 @@ type CloudWatchQuery struct {
 	ExtendedStatistics []*string
 	Period             int
 	Alias              string
-	Id                 string
-	Expression         string
-	ReturnData         bool
 	HighResolution     bool
 }

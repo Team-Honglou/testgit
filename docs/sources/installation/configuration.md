@@ -15,8 +15,6 @@ weight = 1
 The LogDisplayPlatform back-end has a number of configuration options that can be
 specified in a `.ini` configuration file or specified using environment variables.
 
-> **Note.** LogDisplayPlatform needs to be restarted for any configuration changes to take effect.
-
 ## Comments In .ini Files
 
 Semicolons (the `;` char) are the standard way to comment out lines in a `.ini` file.
@@ -81,11 +79,6 @@ system calls to get the machine name.
 Path to where LogDisplayPlatform stores the sqlite3 database (if used), file based
 sessions (if used), and other data.  This path is usually specified via
 command line in the init.d script or the systemd service file.
-
-### temp_data_lifetime
-
-How long temporary images in `data` directory should be kept. Defaults to: `24h`. Supported modifiers: `h` (hours), 
-`m` (minutes), for example: `168h`, `30m`, `10h30m`. Use `0` to never clean up temporary files.
 
 ### logs
 
@@ -181,7 +174,7 @@ embedded database (included in the main LogDisplayPlatform binary).
 
 ### url
 
-Use either URL or the other fields below to configure the database
+Use either URL or or the other fields below to configure the database
 Example: `mysql://user:secret@host:port/database`
 
 ### type
@@ -195,9 +188,9 @@ will be stored.
 
 ### host
 
-Only applicable to MySQL or Postgres. Includes IP or hostname and port or in case of unix sockets the path to it.
+Only applicable to MySQL or Postgres. Includes IP or hostname and port.
 For example, for MySQL running on the same host as LogDisplayPlatform: `host =
-127.0.0.1:3306` or with unix sockets: `host = /var/run/mysqld/mysqld.sock`
+127.0.0.1:3306`
 
 ### name
 
@@ -297,12 +290,6 @@ Defaults to `false`.
 Set to `true` to automatically add new users to the main organization
 (id 1). When set to `false`, new users will automatically cause a new
 organization to be created for that new user.
-
-### auto_assign_org_id
-
-Set this value to automatically add new users to the provided org.
-This requires `auto_assign_org` to be set to `true`. Please make sure
-that this organization does already exists.
 
 ### auto_assign_org_role
 
@@ -697,9 +684,9 @@ session provider you have configured.
 
 - **file:** session file path, e.g. `data/sessions`
 - **mysql:** go-sql-driver/mysql dsn config string, e.g. `user:password@tcp(127.0.0.1:3306)/database_name`
-- **postgres:** ex:  `user=a password=b host=localhost port=5432 dbname=c sslmode=verify-full`
-- **memcache:** ex:  `127.0.0.1:11211`
-- **redis:** ex: `addr=127.0.0.1:6379,pool_size=100,prefix=logdisplayplatform`. For unix socket, use for example: `network=unix,addr=/var/run/redis/redis.sock,pool_size=100,db=logdisplayplatform`
+- **postgres:** ex:  user=a password=b host=localhost port=5432 dbname=c sslmode=verify-full
+- **memcache:** ex:  127.0.0.1:11211
+- **redis:** ex: `addr=127.0.0.1:6379,pool_size=100,prefix=logdisplayplatform`
 
 Postgres valid `sslmode` are `disable`, `require`, `verify-ca`, and `verify-full` (default).
 
@@ -865,7 +852,7 @@ Secret key. e.g. AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 Url to where LogDisplayPlatform will send PUT request with images
 
 ### public_url
-Optional parameter. Url to send to users in notifications. If the string contains the sequence ${file}, it will be replaced with the uploaded filename. Otherwise, the file name will be appended to the path part of the url, leaving any query string unchanged.
+Optional parameter. Url to send to users in notifications, directly appended with the resulting uploaded file name.
 
 ### username
 basic auth username

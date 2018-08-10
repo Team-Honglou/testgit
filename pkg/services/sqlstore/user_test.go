@@ -1,7 +1,6 @@
 package sqlstore
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -25,7 +24,7 @@ func TestUserDataAccess(t *testing.T) {
 					Name:  fmt.Sprint("user", i),
 					Login: fmt.Sprint("loginuser", i),
 				}
-				err = CreateUser(context.Background(), cmd)
+				err = CreateUser(cmd)
 				So(err, ShouldBeNil)
 				users = append(users, cmd.Result)
 			}

@@ -196,12 +196,12 @@ export function TemplateSrvStub() {
 }
 
 var allDeps = {
-  ContextSrvStub,
-  TemplateSrvStub,
-  TimeSrvStub,
-  ControllerTestContext,
-  ServiceTestContext,
-  DashboardViewStateStub,
+  ContextSrvStub: ContextSrvStub,
+  TemplateSrvStub: TemplateSrvStub,
+  TimeSrvStub: TimeSrvStub,
+  ControllerTestContext: ControllerTestContext,
+  ServiceTestContext: ServiceTestContext,
+  DashboardViewStateStub: DashboardViewStateStub,
 };
 
 // for legacy

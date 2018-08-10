@@ -113,10 +113,11 @@ select:-webkit-autofill:focus {
   }
 
   .icon-gf-logdisplayplatform_wordmark {
-    color: darken($white, 11%);
+    // color: darken($white, 11%);
+    color: #6eb1ec;
     position: relative;
     font-size: 2rem;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    text-shadow: 10px 10px 5px rgba(0, 0, 0, 0.4);
   }
 }
 

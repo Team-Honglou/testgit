@@ -52,7 +52,7 @@ $ docker run \
 ## Running of the master branch
 
 For every successful commit we publish a LogDisplayPlatform container to [`logdisplayplatform/logdisplayplatform`](https://hub.docker.com/r/logdisplayplatform/logdisplayplatform/tags/) and [`logdisplayplatform/logdisplayplatform-dev`](https://hub.docker.com/r/logdisplayplatform/logdisplayplatform-dev/tags/). In `logdisplayplatform/logdisplayplatform` container we will always overwrite the `master` tag with the latest version. In `logdisplayplatform/logdisplayplatform-dev` we will include
-the git commit in the tag. If you run LogDisplayPlatform master in production we **strongly** recommend that you use the later since different machines might run different version of logdisplayplatform if they pull the master tag at different times.
+the git commit in the tag. If you run LogDisplayPlatform master in production we **strongly** recommend that you use the later since different machines might run different version of logdisplayplatform if they pull the master tag at different times. 
 
 ## Installing Plugins for LogDisplayPlatform
 
@@ -137,16 +137,16 @@ docker run -d --user $ID --volume "$PWD/data:/var/lib/logdisplayplatform" -p 300
 
 ## Reading secrets from files (support for Docker Secrets)
 
-> Only available in LogDisplayPlatform v5.2+.
+> Available in v5.2.0 and later
 
 It's possible to supply LogDisplayPlatform with configuration through files. This works well with [Docker Secrets](https://docs.docker.com/engine/swarm/secrets/) as the secrets by default gets mapped into `/run/secrets/<name of secret>` of the container.
 
-You can do this with any of the configuration options in conf/logdisplayplatform.ini by setting `GF_<SectionName>_<KeyName>__FILE` to the path of the file holding the secret.
+You can do this with any of the configuration options in conf/logdisplayplatform.ini by setting `GF_<SectionName>_<KeyName>_FILE` to the path of the file holding the secret.
 
 Let's say you want to set the admin password this way.
 
 - Admin password secret: `/run/secrets/admin_password`
-- Environment variable: `GF_SECURITY_ADMIN_PASSWORD__FILE=/run/secrets/admin_password`
+- Environment variable: `GF_SECURITY_ADMIN_PASSWORD_FILE=/run/secrets/admin_password`
 
 
 ## Migration from a previous version of the docker container to 5.1 or later
@@ -166,7 +166,7 @@ The docker container for LogDisplayPlatform has seen a major rewrite for 5.1.
 
 Previously `/var/lib/logdisplayplatform`, `/etc/logdisplayplatform` and `/var/log/logdisplayplatform` were defined as volumes in the `Dockerfile`. This led to the creation of three volumes each time a new instance of the LogDisplayPlatform container started, whether you wanted it or not.
 
-You should always be careful to define your own named volume for storage, but if you depended on these volumes you should be aware that an upgraded container will no longer have them.
+You should always be careful to define your own named volume for storage, but if you depended on these volumes you should be aware that an upgraded container will no longer have them. 
 
 **Warning**: when migrating from an earlier version to 5.1 or later using docker compose and implicit volumes you need to use `docker inspect` to find out which volumes your container is mapped to so that you can map them to the upgraded container as well. You will also have to change file ownership (or user) as documented below.
 
@@ -201,7 +201,7 @@ services:
 
 #### Modifying permissions
 
-The commands below will run bash inside the LogDisplayPlatform container with your volume mapped in. This makes it possible to modify the file ownership to match the new container. Always be careful when modifying permissions.
+The commands below will run bash inside the LogDisplayPlatform container with your volume mapped in. This makes it possible to modify the file ownership to match the new container. Always be careful when modifying permissions. 
 
 ```bash
 $ docker run -ti --user root --volume "<your volume mapping here>" --entrypoint bash logdisplayplatform/logdisplayplatform:5.1.0

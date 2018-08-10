@@ -76,7 +76,6 @@ func setIndexViewData(c *m.ReqContext) (*dtos.IndexViewData, error) {
 		BuildCommit:             setting.BuildCommit,
 		NewLogDisplayPlatformVersion:       plugins.LogDisplayPlatformLatestVersion,
 		NewLogDisplayPlatformVersionExists: plugins.LogDisplayPlatformHasUpdate,
-		AppName:                 setting.ApplicationName,
 	}
 
 	if setting.DisableGravatar {

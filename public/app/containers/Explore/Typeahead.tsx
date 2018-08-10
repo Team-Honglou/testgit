@@ -1,26 +1,17 @@
 import React from 'react';
 
-import { Suggestion, SuggestionGroup } from './QueryField';
-
-function scrollIntoView(el: HTMLElement) {
+function scrollIntoView(el) {
   if (!el || !el.offsetParent) {
     return;
   }
-  const container = el.offsetParent as HTMLElement;
+  const container = el.offsetParent;
   if (el.offsetTop > container.scrollTop + container.offsetHeight || el.offsetTop < container.scrollTop) {
     container.scrollTop = el.offsetTop - container.offsetTop;
   }
 }
 
-interface TypeaheadItemProps {
-  isSelected: boolean;
-  item: Suggestion;
-  onClickItem: (Suggestion) => void;
-}
-
-class TypeaheadItem extends React.PureComponent<TypeaheadItemProps, {}> {
-  el: HTMLElement;
-
+class TypeaheadItem extends React.PureComponent<any, any> {
+  el: any;
   componentDidUpdate(prevProps) {
     if (this.props.isSelected && !prevProps.isSelected) {
       scrollIntoView(this.el);
@@ -31,60 +22,41 @@ class TypeaheadItem extends React.PureComponent<TypeaheadItemProps, {}> {
     this.el = el;
   };
 
-  onClick = () => {
-    this.props.onClickItem(this.props.item);
-  };
-
   render() {
-    const { isSelected, item } = this.props;
+    const { isSelected, label, onClickItem } = this.props;
     const className = isSelected ? 'typeahead-item typeahead-item__selected' : 'typeahead-item';
+    const onClick = () => onClickItem(label);
     return (
-      <li ref={this.getRef} className={className} onClick={this.onClick}>
-        {item.detail || item.label}
-        {item.documentation && isSelected ? <div className="typeahead-item-hint">{item.documentation}</div> : null}
+      <li ref={this.getRef} className={className} onClick={onClick}>
+        {label}
       </li>
     );
   }
 }
 
-interface TypeaheadGroupProps {
-  items: Suggestion[];
-  label: string;
-  onClickItem: (Suggestion) => void;
-  selected: Suggestion;
-}
-
-class TypeaheadGroup extends React.PureComponent<TypeaheadGroupProps, {}> {
+class TypeaheadGroup extends React.PureComponent<any, any> {
   render() {
     const { items, label, selected, onClickItem } = this.props;
     return (
       <li className="typeahead-group">
         <div className="typeahead-group__title">{label}</div>
         <ul className="typeahead-group__list">
-          {items.map(item => {
-            return (
-              <TypeaheadItem key={item.label} onClickItem={onClickItem} isSelected={selected === item} item={item} />
-            );
-          })}
+          {items.map(item => (
+            <TypeaheadItem key={item} onClickItem={onClickItem} isSelected={selected.indexOf(item) > -1} label={item} />
+          ))}
         </ul>
       </li>
     );
   }
 }
 
-interface TypeaheadProps {
-  groupedItems: SuggestionGroup[];
-  menuRef: any;
-  selectedItem: Suggestion | null;
-  onClickItem: (Suggestion) => void;
-}
-class Typeahead extends React.PureComponent<TypeaheadProps, {}> {
+class Typeahead extends React.PureComponent<any, any> {
   render() {
-    const { groupedItems, menuRef, selectedItem, onClickItem } = this.props;
+    const { groupedItems, menuRef, selectedItems, onClickItem } = this.props;
     return (
       <ul className="typeahead" ref={menuRef}>
         {groupedItems.map(g => (
-          <TypeaheadGroup key={g.label} onClickItem={onClickItem} selected={selectedItem} {...g} />
+          <TypeaheadGroup key={g.label} onClickItem={onClickItem} selected={selectedItems} {...g} />
         ))}
       </ul>
     );

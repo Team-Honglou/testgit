@@ -13,6 +13,9 @@ function exit_if_fail {
 echo "running go fmt"
 exit_if_fail test -z "$(gofmt -s -l ./pkg | tee /dev/stderr)"
 
+echo "running go vet"
+exit_if_fail test -z "$(go vet ./pkg/... | tee /dev/stderr)"
+
 echo "building backend with install to cache pkgs"
 exit_if_fail time go install ./pkg/cmd/logdisplayplatform-server
 

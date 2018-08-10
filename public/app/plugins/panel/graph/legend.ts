@@ -70,9 +70,9 @@ module.directive('graphLegend', function(popoverSrv, $timeout) {
         var el = $(e.currentTarget);
         var index = getSeriesIndexForElement(el);
         var seriesInfo = seriesList[index];
-        const scrollPosition = legendScrollbar.scroller.scrollTop;
+        var scrollPosition = $(elem.children('tbody')).scrollTop();
         ctrl.toggleSeries(seriesInfo, e);
-        legendScrollbar.scroller.scrollTop = scrollPosition;
+        $(elem.children('tbody')).scrollTop(scrollPosition);
       }
 
       function sortLegend(e) {

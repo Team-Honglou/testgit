@@ -22,7 +22,6 @@ export class QueryVariable implements Variable {
   tagsQuery: string;
   tagValuesQuery: string;
   tags: any[];
-  skipUrlSync: boolean;
 
   defaults = {
     type: 'query',
@@ -43,7 +42,6 @@ export class QueryVariable implements Variable {
     useTags: false,
     tagsQuery: '',
     tagValuesQuery: '',
-    skipUrlSync: false,
   };
 
   /** @ngInject **/

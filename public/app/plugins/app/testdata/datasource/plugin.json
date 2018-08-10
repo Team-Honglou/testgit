@@ -1,0 +1,20 @@
+{
+  "type": "datasource",
+  "name": "LogDisplayPlatform TestDataDB",
+  "id": "logdisplayplatform-testdata-datasource",
+
+  "metrics": true,
+  "alerting": true,
+  "annotations": true,
+
+  "info": {
+    "author": {
+      "name": "LogDisplayPlatform Project",
+      "url": "https://logdisplayplatform.com"
+    },
+    "logos": {
+      "small": "",
+      "large": ""
+    }
+  }
+}

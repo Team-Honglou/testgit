@@ -14,14 +14,12 @@ weight = -8
 
 LogDisplayPlatform v5.2 brings new features, many enhancements and bug fixes. This article will detail the major new features and enhancements.
 
-- [Elasticsearch alerting]({{< relref "#elasticsearch-alerting" >}}) it's finally here!
-- [Native builds for ARM]({{< relref "#native-builds-for-arm" >}}) native builds of LogDisplayPlatform for many more platforms!
-- [Improved Docker image]({{< relref "#improved-docker-image" >}}) with support for docker secrets
-- [Security]({{< relref "#security" >}}) make your LogDisplayPlatform instance more secure
-- [Prometheus]({{< relref "#prometheus" >}}) with alignment enhancements
-- [InfluxDB]({{< relref "#influxdb" >}}) now supports the `mode` function
-- [Alerting]({{< relref "#alerting" >}}) with alert notification channel type for Discord
-- [Dashboards & Panels]({{< relref "#dashboards-panels" >}}) with save & import enhancements
+* [Elasticsearch alerting]({{< relref "#elasticsearch-alerting" >}}) it's finally here!
+* [Cross platform build support]({{< relref "#cross-platform-build-support" >}}) enables native builds of LogDisplayPlatform for many more platforms!
+* [Improved Docker image]({{< relref "#improved-docker-image" >}}) with support for docker secrets
+* [Prometheus]({{< relref "#prometheus" >}}) with alignment enhancements
+* [Alerting]({{< relref "#alerting" >}}) with alert notification channel type for Discord
+* [Dashboards & Panels]({{< relref "#dashboards-panels" >}})
 
 ## Elasticsearch alerting
 
@@ -32,37 +30,22 @@ the most requested features by our community and now it's finally here. Please t
 
 <div class="clearfix"></div>
 
-## Native builds for ARM
+## Cross platform build support
 
-LogDisplayPlatform v5.2 brings an improved build pipeline with cross-platform support. This enables native builds of LogDisplayPlatform for ARMv7 (x32) and ARM64 (x64).
-We've been longing for native ARM build support for ages. With the help from our amazing community this is now finally available.
-Please try it out and let us know what you think.
+LogDisplayPlatform v5.2 brings an improved build pipeline with cross platform support. This enables native builds of LogDisplayPlatform for ARMv7 (x32), ARM64 (x64),
+MacOS/Darwin (x64) and Windows (x64) in both stable and nightly builds.
 
-Another great addition with the improved build pipeline is that binaries for MacOS/Darwin (x64) and Windows (x64) are now automatically built and
-published for both stable and nightly builds.
+We've been longing for native ARM build support for a long time. With the help from our amazing community this is now finally available.
 
 ## Improved Docker image
 
-The LogDisplayPlatform docker image adds support for Docker secrets which enables you to supply LogDisplayPlatform with configuration through files. More
+The LogDisplayPlatform docker image now includes support for Docker secrets which enables you to supply LogDisplayPlatform with configuration through files. More
 information in the [Installing using Docker documentation](/installation/docker/#reading-secrets-from-files-support-for-docker-secrets).
-
-## Security
-
-{{< docs-imagebox img="/img/docs/v52/login_change_password.png" max-width="800px" class="docs-image--right" >}}
-
-Starting from LogDisplayPlatform v5.2, when you login with the administrator account using the default password you'll be presented with a form to change the password.
-We hope this encourages users to follow LogDisplayPlatform's best practices and change the default administrator password.
-
-<div class="clearfix"></div>
 
 ## Prometheus
 
 The Prometheus datasource now aligns the start/end of the query sent to Prometheus with the step, which ensures PromQL expressions with *rate*
-functions get consistent results, and thus avoids graphs jumping around on reload.
-
-## InfluxDB
-
-The InfluxDB datasource now includes support for the *mode* function which returns the most frequent value in a list of field values.
+functions get consistent results, and thus avoid graphs jumping around on reload.
 
 ## Alerting
 
@@ -74,24 +57,10 @@ By popular demand LogDisplayPlatform now includes support for an alert notificat
 
 {{< docs-imagebox img="/img/docs/v52/dashboard_save_modal.png" max-width="800px" class="docs-image--right" >}}
 
-Starting from LogDisplayPlatform v5.2, a modified time range or variable are no longer saved by default. To save a modified
-time range or variable, you'll need to actively select that when saving a dashboard, see screenshot.
-This should hopefully make it easier to have sane defaults for time and variables in dashboards and make it more explicit
+Starting from LogDisplayPlatform v5.2 a modified time range or variable are no longer saved by default. To save a modified
+time range or variable you'll need to actively select that when saving a dashboard, see screenshot.
+This should hopefully make it easier to have sane defaults of time and variables in dashboards and make it more explicit
 when you actually want to overwrite those settings.
-
-<div class="clearfix"></div>
-
-### Import dashboard enhancements
-
-{{< docs-imagebox img="/img/docs/v52/dashboard_import.png" max-width="800px" class="docs-image--right" >}}
-
-LogDisplayPlatform v5.2 adds support for specifying an existing folder or creating a new one when importing a dashboard - a long-awaited feature since
-LogDisplayPlatform v5.0 introduced support for dashboard folders and permissions. The import dashboard page has also got some general improvements
-and should now make it more clear if a possible import will overwrite an existing dashboard, or not.
-
-This release also adds some improvements for those users only having editor or admin permissions in certain folders. The links to
-*Create Dashboard* and *Import Dashboard* are now available in the side navigation, in dashboard search and on the manage dashboards/folder page for a
-user that has editor role in an organization or the edit permission in at least one folder.
 
 <div class="clearfix"></div>
 

@@ -42,7 +42,6 @@ type RemoveTeamMemberCommand struct {
 type GetTeamMembersQuery struct {
 	OrgId  int64
 	TeamId int64
-	UserId int64
 	Result []*TeamMemberDTO
 }
 

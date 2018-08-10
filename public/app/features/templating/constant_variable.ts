@@ -4,7 +4,6 @@ export class ConstantVariable implements Variable {
   query: string;
   options: any[];
   current: any;
-  skipUrlSync: boolean;
 
   defaults = {
     type: 'constant',
@@ -14,7 +13,6 @@ export class ConstantVariable implements Variable {
     query: '',
     current: {},
     options: [],
-    skipUrlSync: false,
   };
 
   /** @ngInject **/

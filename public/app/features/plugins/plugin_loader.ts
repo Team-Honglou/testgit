@@ -126,7 +126,6 @@ import 'vendor/flot/jquery.flot.stackpercent';
 import 'vendor/flot/jquery.flot.fillbelow';
 import 'vendor/flot/jquery.flot.crosshair';
 import 'vendor/flot/jquery.flot.dashes';
-import 'vendor/flot/jquery.flot.gauge';
 
 const flotDeps = [
   'jquery.flot',
@@ -138,7 +137,6 @@ const flotDeps = [
   'jquery.flot.selection',
   'jquery.flot.stackpercent',
   'jquery.flot.events',
-  'jquery.flot.gauge',
 ];
 for (let flotDep of flotDeps) {
   exposeToPlugin(flotDep, { fakeDep: 1 });

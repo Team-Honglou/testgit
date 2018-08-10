@@ -1,42 +1,41 @@
 import React, { PureComponent } from 'react';
 
-// TODO make this datasource-plugin-dependent
-import QueryField from './PromQueryField';
+import QueryField from './QueryField';
 
-class QueryRow extends PureComponent<any, {}> {
-  onChangeQuery = (value, override?: boolean) => {
+class QueryRow extends PureComponent<any, any> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      edited: false,
+      query: props.query || '',
+    };
+  }
+
+  handleChangeQuery = value => {
     const { index, onChangeQuery } = this.props;
+    const { query } = this.state;
+    const edited = query !== value;
+    this.setState({ edited, query: value });
     if (onChangeQuery) {
-      onChangeQuery(value, index, override);
+      onChangeQuery(value, index);
     }
   };
 
-  onClickAddButton = () => {
+  handleClickAddButton = () => {
     const { index, onAddQueryRow } = this.props;
     if (onAddQueryRow) {
       onAddQueryRow(index);
     }
   };
 
-  onClickClearButton = () => {
-    this.onChangeQuery('', true);
-  };
-
-  onClickHintFix = action => {
-    const { index, onClickHintFix } = this.props;
-    if (onClickHintFix) {
-      onClickHintFix(action, index);
-    }
-  };
-
-  onClickRemoveButton = () => {
+  handleClickRemoveButton = () => {
     const { index, onRemoveQueryRow } = this.props;
     if (onRemoveQueryRow) {
       onRemoveQueryRow(index);
     }
   };
 
-  onPressEnter = () => {
+  handlePressEnter = () => {
     const { onExecuteQuery } = this.props;
     if (onExecuteQuery) {
       onExecuteQuery();
@@ -44,54 +43,38 @@ class QueryRow extends PureComponent<any, {}> {
   };
 
   render() {
-    const { edited, history, query, queryError, queryHint, request } = this.props;
+    const { request } = this.props;
+    const { edited, query } = this.state;
     return (
       <div className="query-row">
-        <div className="query-row-field">
-          <QueryField
-            error={queryError}
-            hint={queryHint}
-            initialQuery={edited ? null : query}
-            history={history}
-            portalPrefix="explore"
-            onClickHintFix={this.onClickHintFix}
-            onPressEnter={this.onPressEnter}
-            onQueryChange={this.onChangeQuery}
-            request={request}
-          />
-        </div>
         <div className="query-row-tools">
-          <button className="btn navbar-button navbar-button--tight" onClick={this.onClickClearButton}>
-            <i className="fa fa-times" />
-          </button>
-          <button className="btn navbar-button navbar-button--tight" onClick={this.onClickAddButton}>
+          <button className="btn navbar-button navbar-button--tight" onClick={this.handleClickAddButton}>
             <i className="fa fa-plus" />
           </button>
-          <button className="btn navbar-button navbar-button--tight" onClick={this.onClickRemoveButton}>
+          <button className="btn navbar-button navbar-button--tight" onClick={this.handleClickRemoveButton}>
             <i className="fa fa-minus" />
           </button>
+        </div>
+        <div className="query-field-wrapper">
+          <QueryField
+            initialQuery={edited ? null : query}
+            onPressEnter={this.handlePressEnter}
+            onQueryChange={this.handleChangeQuery}
+            placeholder="输入一个提示查询"
+            request={request}
+          />
         </div>
       </div>
     );
   }
 }
 
-export default class QueryRows extends PureComponent<any, {}> {
+export default class QueryRows extends PureComponent<any, any> {
   render() {
-    const { className = '', queries, queryErrors = [], queryHints = [], ...handlers } = this.props;
+    const { className = '', queries, ...handlers } = this.props;
     return (
       <div className={className}>
-        {queries.map((q, index) => (
-          <QueryRow
-            key={q.key}
-            index={index}
-            query={q.query}
-            queryError={queryErrors[index]}
-            queryHint={queryHints[index]}
-            edited={q.edited}
-            {...handlers}
-          />
-        ))}
+        {queries.map((q, index) => <QueryRow key={q.key} index={index} query={q.query} {...handlers} />)}
       </div>
     );
   }

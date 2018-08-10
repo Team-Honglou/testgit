@@ -330,7 +330,6 @@ func createPackage(options linuxPackageOptions) {
 	name := "logdisplayplatform"
 	if enterprise {
 		name += "-enterprise"
-		args = append(args, "--replaces", "logdisplayplatform")
 	}
 	args = append(args, "--name", name)
 
@@ -466,6 +465,7 @@ func ldflags() string {
 	b.WriteString(fmt.Sprintf(" -X main.version=%s", version))
 	b.WriteString(fmt.Sprintf(" -X main.commit=%s", getGitSha()))
 	b.WriteString(fmt.Sprintf(" -X main.buildstamp=%d", buildStamp()))
+	b.WriteString(fmt.Sprintf(" -X main.enterprise=%t", enterprise))
 	return b.String()
 }
 

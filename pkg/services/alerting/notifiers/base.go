@@ -3,7 +3,6 @@ package notifiers
 import (
 	"github.com/logdisplayplatform/logdisplayplatform/pkg/components/simplejson"
 	m "github.com/logdisplayplatform/logdisplayplatform/pkg/models"
-
 	"github.com/logdisplayplatform/logdisplayplatform/pkg/services/alerting"
 )
 

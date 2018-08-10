@@ -16,17 +16,17 @@ class GettingStartedPanelCtrl extends PanelCtrl {
     this.steps = [];
 
     this.steps.push({
-      title: 'Install LogDisplayPlatform',
+      title: '安装 LogDisplayPlatform',
       icon: 'icon-gf icon-gf-check',
-      href: 'http://docs.logdisplayplatform.org/',
+      href: '',
       target: '_blank',
       note: 'Review the installation docs',
       check: () => $q.when(true),
     });
 
     this.steps.push({
-      title: 'Create your first data source',
-      cta: 'Add data source',
+      title: '创建你的第一个数据源',
+      cta: '添加数据源',
       icon: 'icon-gf icon-gf-datasources',
       href: 'datasources/new?gettingstarted',
       check: () => {
@@ -39,8 +39,8 @@ class GettingStartedPanelCtrl extends PanelCtrl {
     });
 
     this.steps.push({
-      title: 'Create your first dashboard',
-      cta: 'New dashboard',
+      title: '创建你的第一个面板',
+      cta: '新建面板',
       icon: 'icon-gf icon-gf-dashboard',
       href: 'dashboard/new?gettingstarted',
       check: () => {
@@ -51,8 +51,8 @@ class GettingStartedPanelCtrl extends PanelCtrl {
     });
 
     this.steps.push({
-      title: 'Invite your team',
-      cta: 'Add Users',
+      title: '添加你的组织成员',
+      cta: '添加用户',
       icon: 'icon-gf icon-gf-users',
       href: 'org/users?gettingstarted',
       check: () => {
@@ -63,10 +63,10 @@ class GettingStartedPanelCtrl extends PanelCtrl {
     });
 
     this.steps.push({
-      title: 'Install apps & plugins',
-      cta: 'Explore plugin repository',
+      title: '安装 APP & 插件',
+      cta: '请联系厂商进行安装',
       icon: 'icon-gf icon-gf-apps',
-      href: 'https://logdisplayplatform.com/plugins?utm_source=logdisplayplatform_getting_started',
+      href: '',
       check: () => {
         return this.backendSrv.get('/api/plugins', { embedded: 0, core: 0 }).then(plugins => {
           return plugins.length > 0;

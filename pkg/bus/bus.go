@@ -12,42 +12,21 @@ type Msg interface{}
 
 var ErrHandlerNotFound = errors.New("handler not found")
 
-type TransactionManager interface {
-	InTransaction(ctx context.Context, fn func(ctx context.Context) error) error
-}
-
 type Bus interface {
 	Dispatch(msg Msg) error
 	DispatchCtx(ctx context.Context, msg Msg) error
 	Publish(msg Msg) error
 
-	// InTransaction starts a transaction and store it in the context.
-	// The caller can then pass a function with multiple DispatchCtx calls that
-	// all will be executed in the same transaction. InTransaction will rollback if the
-	// callback returns an error.
-	InTransaction(ctx context.Context, fn func(ctx context.Context) error) error
-
 	AddHandler(handler HandlerFunc)
-	AddHandlerCtx(handler HandlerFunc)
+	AddCtxHandler(handler HandlerFunc)
 	AddEventListener(handler HandlerFunc)
 	AddWildcardListener(handler HandlerFunc)
-
-	// SetTransactionManager allows the user to replace the internal
-	// noop TransactionManager that is responsible for manageing
-	// transactions in `InTransaction`
-	SetTransactionManager(tm TransactionManager)
-}
-
-func (b *InProcBus) InTransaction(ctx context.Context, fn func(ctx context.Context) error) error {
-	return b.txMng.InTransaction(ctx, fn)
 }
 
 type InProcBus struct {
 	handlers          map[string]HandlerFunc
-	handlersWithCtx   map[string]HandlerFunc
 	listeners         map[string][]HandlerFunc
 	wildcardListeners []HandlerFunc
-	txMng             TransactionManager
 }
 
 // temp stuff, not sure how to handle bus instance, and init yet
@@ -56,11 +35,8 @@ var globalBus = New()
 func New() Bus {
 	bus := &InProcBus{}
 	bus.handlers = make(map[string]HandlerFunc)
-	bus.handlersWithCtx = make(map[string]HandlerFunc)
 	bus.listeners = make(map[string][]HandlerFunc)
 	bus.wildcardListeners = make([]HandlerFunc, 0)
-	bus.txMng = &noopTransactionManager{}
-
 	return bus
 }
 
@@ -69,21 +45,17 @@ func GetBus() Bus {
 	return globalBus
 }
 
-func (b *InProcBus) SetTransactionManager(tm TransactionManager) {
-	b.txMng = tm
-}
-
 func (b *InProcBus) DispatchCtx(ctx context.Context, msg Msg) error {
 	var msgName = reflect.TypeOf(msg).Elem().Name()
 
-	var handler = b.handlersWithCtx[msgName]
+	var handler = b.handlers[msgName]
 	if handler == nil {
 		return ErrHandlerNotFound
 	}
 
-	var params = []reflect.Value{}
-	params = append(params, reflect.ValueOf(ctx))
-	params = append(params, reflect.ValueOf(msg))
+	var params = make([]reflect.Value, 2)
+	params[0] = reflect.ValueOf(ctx)
+	params[1] = reflect.ValueOf(msg)
 
 	ret := reflect.ValueOf(handler).Call(params)
 	err := ret[0].Interface()
@@ -96,23 +68,13 @@ func (b *InProcBus) DispatchCtx(ctx context.Context, msg Msg) error {
 func (b *InProcBus) Dispatch(msg Msg) error {
 	var msgName = reflect.TypeOf(msg).Elem().Name()
 
-	var handler = b.handlersWithCtx[msgName]
-	withCtx := true
-
-	if handler == nil {
-		withCtx = false
-		handler = b.handlers[msgName]
-	}
-
+	var handler = b.handlers[msgName]
 	if handler == nil {
 		return ErrHandlerNotFound
 	}
 
-	var params = []reflect.Value{}
-	if withCtx {
-		params = append(params, reflect.ValueOf(context.Background()))
-	}
-	params = append(params, reflect.ValueOf(msg))
+	var params = make([]reflect.Value, 1)
+	params[0] = reflect.ValueOf(msg)
 
 	ret := reflect.ValueOf(handler).Call(params)
 	err := ret[0].Interface()
@@ -158,10 +120,10 @@ func (b *InProcBus) AddHandler(handler HandlerFunc) {
 	b.handlers[queryTypeName] = handler
 }
 
-func (b *InProcBus) AddHandlerCtx(handler HandlerFunc) {
+func (b *InProcBus) AddCtxHandler(handler HandlerFunc) {
 	handlerType := reflect.TypeOf(handler)
 	queryTypeName := handlerType.In(1).Elem().Name()
-	b.handlersWithCtx[queryTypeName] = handler
+	b.handlers[queryTypeName] = handler
 }
 
 func (b *InProcBus) AddEventListener(handler HandlerFunc) {
@@ -180,8 +142,8 @@ func AddHandler(implName string, handler HandlerFunc) {
 }
 
 // Package level functions
-func AddHandlerCtx(implName string, handler HandlerFunc) {
-	globalBus.AddHandlerCtx(handler)
+func AddCtxHandler(implName string, handler HandlerFunc) {
+	globalBus.AddCtxHandler(handler)
 }
 
 // Package level functions
@@ -205,20 +167,6 @@ func Publish(msg Msg) error {
 	return globalBus.Publish(msg)
 }
 
-// InTransaction starts a transaction and store it in the context.
-// The caller can then pass a function with multiple DispatchCtx calls that
-// all will be executed in the same transaction. InTransaction will rollback if the
-// callback returns an error.
-func InTransaction(ctx context.Context, fn func(ctx context.Context) error) error {
-	return globalBus.InTransaction(ctx, fn)
-}
-
 func ClearBusHandlers() {
 	globalBus = New()
-}
-
-type noopTransactionManager struct{}
-
-func (*noopTransactionManager) InTransaction(ctx context.Context, fn func(ctx context.Context) error) error {
-	return fn(ctx)
 }

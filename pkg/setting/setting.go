@@ -18,8 +18,6 @@ import (
 
 	"github.com/go-macaron/session"
 
-	"time"
-
 	"github.com/logdisplayplatform/logdisplayplatform/pkg/log"
 	"github.com/logdisplayplatform/logdisplayplatform/pkg/util"
 )
@@ -50,7 +48,7 @@ var (
 	BuildVersion    string
 	BuildCommit     string
 	BuildStamp      int64
-	IsEnterprise    bool
+	Enterprise      bool
 	ApplicationName string
 
 	// Paths
@@ -100,7 +98,6 @@ var (
 	AllowUserSignUp         bool
 	AllowUserOrgCreate      bool
 	AutoAssignOrg           bool
-	AutoAssignOrgId         int
 	AutoAssignOrgRole       string
 	VerifyEmailEnabled      bool
 	LoginHint               string
@@ -198,8 +195,6 @@ type Cfg struct {
 	PhantomDir                       string
 	RendererUrl                      string
 	DisableBruteForceLoginProtection bool
-
-	TempDataLifetime time.Duration
 }
 
 type CommandLineArgs struct {
@@ -519,7 +514,7 @@ func (cfg *Cfg) Load(args *CommandLineArgs) error {
 	Raw = cfg.Raw
 
 	ApplicationName = "LogDisplayPlatform"
-	if IsEnterprise {
+	if Enterprise {
 		ApplicationName += " Enterprise"
 	}
 
@@ -593,7 +588,6 @@ func (cfg *Cfg) Load(args *CommandLineArgs) error {
 	AllowUserSignUp = users.Key("allow_sign_up").MustBool(true)
 	AllowUserOrgCreate = users.Key("allow_org_create").MustBool(true)
 	AutoAssignOrg = users.Key("auto_assign_org").MustBool(true)
-	AutoAssignOrgId = users.Key("auto_assign_org_id").MustInt(1)
 	AutoAssignOrgRole = users.Key("auto_assign_org_role").In("Editor", []string{"Editor", "Admin", "Viewer"})
 	VerifyEmailEnabled = users.Key("verify_email_enabled").MustBool(false)
 	LoginHint = users.Key("login_hint").String()
@@ -643,7 +637,6 @@ func (cfg *Cfg) Load(args *CommandLineArgs) error {
 	cfg.RendererUrl = renderSec.Key("server_url").String()
 	cfg.ImagesDir = filepath.Join(DataPath, "png")
 	cfg.PhantomDir = filepath.Join(HomePath, "tools/phantomjs")
-	cfg.TempDataLifetime = iniFile.Section("paths").Key("temp_data_lifetime").MustDuration(time.Second * 3600 * 24)
 
 	analytics := iniFile.Section("analytics")
 	ReportingEnabled = analytics.Key("reporting_enabled").MustBool(true)

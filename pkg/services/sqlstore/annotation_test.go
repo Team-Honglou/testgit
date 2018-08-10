@@ -268,7 +268,7 @@ func TestAnnotations(t *testing.T) {
 
 				annotationId := items[0].Id
 
-				err = repo.Delete(&annotations.DeleteParams{Id: annotationId, OrgId: 1})
+				err = repo.Delete(&annotations.DeleteParams{Id: annotationId})
 				So(err, ShouldBeNil)
 
 				items, err = repo.Find(query)

@@ -1,0 +1,5 @@
+dn: cn=users,dc=logdisplayplatform,dc=org
+cn: users
+member: cn=ldapeditor,dc=logdisplayplatform,dc=org
+objectClass: groupOfNames
+objectClass: top

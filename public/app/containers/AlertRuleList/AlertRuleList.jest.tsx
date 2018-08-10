@@ -16,7 +16,7 @@ describe('AlertRuleList', () => {
           id: 11,
           dashboardId: 58,
           panelId: 3,
-          name: 'Panel Title alert',
+          name: '图表告警标题',
           state: 'ok',
           newStateDate: moment()
             .subtract(5, 'minutes')

@@ -1,7 +1,6 @@
 package sqlstore
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -23,7 +22,7 @@ func TestTeamCommandsAndQueries(t *testing.T) {
 					Name:  fmt.Sprint("user", i),
 					Login: fmt.Sprint("loginuser", i),
 				}
-				err := CreateUser(context.Background(), userCmd)
+				err := CreateUser(userCmd)
 				So(err, ShouldBeNil)
 				userIds = append(userIds, userCmd.Result.Id)
 			}

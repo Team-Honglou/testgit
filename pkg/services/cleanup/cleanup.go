@@ -57,10 +57,8 @@ func (srv *CleanUpService) cleanUpTmpFiles() {
 	}
 
 	var toDelete []os.FileInfo
-	var now = time.Now()
-
 	for _, file := range files {
-		if srv.shouldCleanupTempFile(file.ModTime(), now) {
+		if file.ModTime().AddDate(0, 0, 1).Before(time.Now()) {
 			toDelete = append(toDelete, file)
 		}
 	}
@@ -74,14 +72,6 @@ func (srv *CleanUpService) cleanUpTmpFiles() {
 	}
 
 	srv.log.Debug("Found old rendered image to delete", "deleted", len(toDelete), "keept", len(files))
-}
-
-func (srv *CleanUpService) shouldCleanupTempFile(filemtime time.Time, now time.Time) bool {
-	if srv.Cfg.TempDataLifetime == 0 {
-		return false
-	}
-
-	return filemtime.Add(srv.Cfg.TempDataLifetime).Before(now)
 }
 
 func (srv *CleanUpService) deleteExpiredSnapshots() {

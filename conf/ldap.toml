@@ -72,8 +72,6 @@ email =  "email"
 [[servers.group_mappings]]
 group_dn = "cn=admins,dc=logdisplayplatform,dc=org"
 org_role = "Admin"
-# To make user an instance admin  (LogDisplayPlatform Admin) uncomment line below
-# logdisplayplatform_admin = true
 # The LogDisplayPlatform organization database id, optional, if left out the default org (id 1) will be used
 # org_id = 1
 

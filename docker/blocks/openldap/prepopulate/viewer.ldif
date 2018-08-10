@@ -1,0 +1,9 @@
+dn: cn=ldapviewer,dc=logdisplayplatform,dc=org
+mail: ldapviewer@logdisplayplatform.com
+userPassword: logdisplayplatform
+objectClass: person
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+sn: ldapviewer
+cn: ldapviewer

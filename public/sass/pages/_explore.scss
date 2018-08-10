@@ -47,14 +47,6 @@
     background-color: $btn-active-bg;
   }
 
-  .navbar-button--no-icon {
-    line-height: 18px;
-  }
-
-  .result-options {
-    margin-top: 2 * $panel-margin;
-  }
-
   .elapsed-time {
     position: absolute;
     left: 0;
@@ -66,10 +58,6 @@
 
   .graph-legend {
     flex-wrap: wrap;
-  }
-
-  .datasource-picker {
-    min-width: 10rem;
   }
 
   .timepicker {
@@ -88,10 +76,6 @@
   .relative {
     position: relative;
   }
-
-  .link {
-    text-decoration: underline;
-  }
 }
 
 .explore + .explore {
@@ -107,63 +91,152 @@
 }
 
 .query-row-tools {
-  width: 6rem;
+  width: 4rem;
 }
 
-.query-row-field {
-  margin-right: 3px;
+.query-field {
+  font-size: $font-size-root;
+  font-family: $font-family-monospace;
+  height: auto;
+}
+
+.query-field-wrapper {
+  position: relative;
+  display: inline-block;
+  padding: 6px 7px 4px;
   width: 100%;
+  cursor: text;
+  line-height: $line-height-base;
+  color: $text-color-weak;
+  background-color: $panel-bg;
+  background-image: none;
+  border: $panel-border;
+  border-radius: $border-radius;
+  transition: all 0.3s;
 }
 
-.explore {
-  .logs {
-    .logs-entries {
-      display: grid;
-      grid-column-gap: 1rem;
-      grid-row-gap: 0.1rem;
-      grid-template-columns: 4px minmax(100px, max-content) 1fr;
-      font-family: $font-family-monospace;
-    }
+.explore-typeahead {
+  .typeahead {
+    position: absolute;
+    z-index: auto;
+    top: -10000px;
+    left: -10000px;
+    opacity: 0;
+    border-radius: $border-radius;
+    transition: opacity 0.75s;
+    border: $panel-border;
+    max-height: calc(66vh);
+    overflow-y: scroll;
+    max-width: calc(66%);
+    overflow-x: hidden;
+    outline: none;
+    list-style: none;
+    background: $panel-bg;
+    color: $text-color;
+    transition: opacity 0.4s ease-out;
+    box-shadow: $typeahead-shadow;
+  }
 
-    .logs-row-match-highlight {
-      background-color: lighten($blue, 20%);
-    }
+  .typeahead-group__title {
+    color: $text-color-weak;
+    font-size: $font-size-sm;
+    line-height: $line-height-base;
+    padding: $input-padding-y $input-padding-x;
+  }
 
-    .logs-row-level {
-      background-color: transparent;
-      margin: 6px 0;
-      border-radius: 2px;
-      opacity: 0.8;
-    }
+  .typeahead-item {
+    height: auto;
+    font-family: $font-family-monospace;
+    padding: $input-padding-y $input-padding-x;
+    padding-left: $input-padding-x-lg;
+    font-size: $font-size-sm;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    z-index: 1;
+    display: block;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), border-color 0.3s cubic-bezier(0.645, 0.045, 0.355, 1),
+      background 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), padding 0.15s cubic-bezier(0.645, 0.045, 0.355, 1);
+  }
 
-    .logs-row-level-crit,
-    .logs-row-level-error,
-    .logs-row-level-err {
-      background-color: $red;
-    }
-
-    .logs-row-level-warn {
-      background-color: $orange;
-    }
-
-    .logs-row-level-info {
-      background-color: $green;
-    }
+  .typeahead-item__selected {
+    background-color: $typeahead-selected-bg;
+    color: $typeahead-selected-color;
   }
 }
 
-// Prometheus-specifics, to be extracted to datasource soon
+/* SYNTAX */
 
 .explore {
-  .prom-query-field {
-    display: flex;
+  .token.comment,
+  .token.block-comment,
+  .token.prolog,
+  .token.doctype,
+  .token.cdata {
+    color: $text-color-weak;
   }
 
-  .prom-query-field-wrapper {
-    width: 100%;
+  .token.punctuation {
+    color: $text-color-weak;
   }
 
-  .prom-query-field-info {
-    margin: 0.25em 0.5em 0.5em;
+  .token.property,
+  .token.tag,
+  .token.boolean,
+  .token.number,
+  .token.function-name,
+  .token.constant,
+  .token.symbol,
+  .token.deleted {
+    color: $query-red;
+  }
+
+  .token.selector,
+  .token.attr-name,
+  .token.string,
+  .token.char,
+  .token.function,
+  .token.builtin,
+  .token.inserted {
+    color: $query-green;
+  }
+
+  .token.operator,
+  .token.entity,
+  .token.url,
+  .token.variable {
+    color: $query-purple;
+  }
+
+  .token.atrule,
+  .token.attr-value,
+  .token.keyword,
+  .token.class-name {
+    color: $query-blue;
+  }
+
+  .token.regex,
+  .token.important {
+    color: $query-orange;
+  }
+
+  .token.important {
+    font-weight: normal;
+  }
+
+  .token.bold {
+    font-weight: bold;
+  }
+  .token.italic {
+    font-style: italic;
+  }
+
+  .token.entity {
+    cursor: help;
+  }
+
+  .namespace {
+    opacity: 0.7;
   }
 }

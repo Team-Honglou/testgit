@@ -1,7 +1,6 @@
 package sqlstore
 
 import (
-	"context"
 	"time"
 
 	"github.com/logdisplayplatform/logdisplayplatform/pkg/bus"
@@ -12,7 +11,7 @@ func init() {
 	bus.AddHandler("sql", GetApiKeys)
 	bus.AddHandler("sql", GetApiKeyById)
 	bus.AddHandler("sql", GetApiKeyByName)
-	bus.AddHandlerCtx("sql", DeleteApiKeyCtx)
+	bus.AddHandler("sql", DeleteApiKey)
 	bus.AddHandler("sql", AddApiKey)
 }
 
@@ -23,8 +22,8 @@ func GetApiKeys(query *m.GetApiKeysQuery) error {
 	return sess.Find(&query.Result)
 }
 
-func DeleteApiKeyCtx(ctx context.Context, cmd *m.DeleteApiKeyCommand) error {
-	return withDbSession(ctx, func(sess *DBSession) error {
+func DeleteApiKey(cmd *m.DeleteApiKeyCommand) error {
+	return inTransaction(func(sess *DBSession) error {
 		var rawSql = "DELETE FROM api_key WHERE id=? and org_id=?"
 		_, err := sess.Exec(rawSql, cmd.Id, cmd.OrgId)
 		return err

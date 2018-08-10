@@ -34,10 +34,14 @@ export class ContextSrv {
   constructor() {
     this.sidemenu = store.getBool('logdisplayplatform.sidemenu', true);
 
+    if (!config.buildInfo) {
+      config.buildInfo = {};
+    }
     if (!config.bootData) {
       config.bootData = { user: {}, settings: {} };
     }
 
+    this.version = config.buildInfo.version;
     this.user = new User();
     this.isSignedIn = this.user.isSignedIn;
     this.isLogDisplayPlatformAdmin = this.user.isLogDisplayPlatformAdmin;

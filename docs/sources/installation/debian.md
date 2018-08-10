@@ -15,9 +15,10 @@ weight = 1
 
 Description | Download
 ------------ | -------------
-Stable for Debian-based Linux | [x86-64](https://logdisplayplatform.com/logdisplayplatform/download?platform=linux)
-Stable for Debian-based Linux | [ARM64](https://logdisplayplatform.com/logdisplayplatform/download?platform=arm)
-Stable for Debian-based Linux | [ARMv7](https://logdisplayplatform.com/logdisplayplatform/download?platform=arm)
+Stable for Debian-based Linux | [logdisplayplatform_5.1.3_amd64.deb](https://s3-us-west-2.amazonaws.com/logdisplayplatform-releases/release/logdisplayplatform_5.1.3_amd64.deb)
+<!--
+Beta for Debian-based Linux | [logdisplayplatform_5.1.0-beta1_amd64.deb](https://s3-us-west-2.amazonaws.com/logdisplayplatform-releases/release/logdisplayplatform_5.1.0-beta1_amd64.deb)
+-->
 
 Read [Upgrading LogDisplayPlatform]({{< relref "installation/upgrading.md" >}}) for tips and guidance on updating an existing
 installation.
@@ -26,18 +27,17 @@ installation.
 
 
 ```bash
-wget <debian package url>
+wget https://s3-us-west-2.amazonaws.com/logdisplayplatform-releases/release/logdisplayplatform_5.1.3_amd64.deb
 sudo apt-get install -y adduser libfontconfig
-sudo dpkg -i logdisplayplatform_5.1.4_amd64.deb
+sudo dpkg -i logdisplayplatform_5.1.3_amd64.deb
 ```
 
-Example:
-
+<!-- ## Install Latest Beta
 ```bash
-wget https://s3-us-west-2.amazonaws.com/logdisplayplatform-releases/release/logdisplayplatform_5.1.4_amd64.deb
+wget https://s3-us-west-2.amazonaws.com/logdisplayplatform-releases/release/logdisplayplatform_5.1.0-beta1_amd64.deb
 sudo apt-get install -y adduser libfontconfig
-sudo dpkg -i logdisplayplatform_5.1.4_amd64.deb
-```
+sudo dpkg -i logdisplayplatform_5.1.0-beta1_amd64.deb
+``` -->
 
 ## APT Repository
 

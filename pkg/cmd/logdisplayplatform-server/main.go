@@ -14,11 +14,10 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 
-	"github.com/logdisplayplatform/logdisplayplatform/pkg/log"
 	"github.com/logdisplayplatform/logdisplayplatform/pkg/metrics"
 	"github.com/logdisplayplatform/logdisplayplatform/pkg/setting"
 
-	extensions "github.com/logdisplayplatform/logdisplayplatform/pkg/extensions"
+	_ "github.com/logdisplayplatform/logdisplayplatform/pkg/extensions"
 	_ "github.com/logdisplayplatform/logdisplayplatform/pkg/services/alerting/conditions"
 	_ "github.com/logdisplayplatform/logdisplayplatform/pkg/services/alerting/notifiers"
 	_ "github.com/logdisplayplatform/logdisplayplatform/pkg/tsdb/cloudwatch"
@@ -35,6 +34,7 @@ import (
 var version = "5.0.0"
 var commit = "NA"
 var buildstamp string
+var enterprise string
 
 var configFile = flag.String("config", "", "path to config file")
 var homePath = flag.String("homepath", "", "path to logdisplayplatform install/home path, defaults to working directory")
@@ -77,7 +77,7 @@ func main() {
 	setting.BuildVersion = version
 	setting.BuildCommit = commit
 	setting.BuildStamp = buildstampInt64
-	setting.IsEnterprise = extensions.IsEnterprise
+	setting.Enterprise, _ = strconv.ParseBool(enterprise)
 
 	metrics.M_LogDisplayPlatform_Version.WithLabelValues(version).Set(1)
 
@@ -87,11 +87,7 @@ func main() {
 
 	err := server.Run()
 
-	code := server.Exit(err)
-	trace.Stop()
-	log.Close()
-
-	os.Exit(code)
+	server.Exit(err)
 }
 
 func listenToSystemSignals(server *LogDisplayPlatformServerImpl) {

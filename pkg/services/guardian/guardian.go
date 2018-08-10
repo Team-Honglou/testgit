@@ -30,7 +30,7 @@ type dashboardGuardianImpl struct {
 	dashId int64
 	orgId  int64
 	acl    []*m.DashboardAclInfoDTO
-	teams  []*m.TeamDTO
+	groups []*m.Team
 	log    log.Logger
 }
 
@@ -186,15 +186,15 @@ func (g *dashboardGuardianImpl) GetAcl() ([]*m.DashboardAclInfoDTO, error) {
 	return g.acl, nil
 }
 
-func (g *dashboardGuardianImpl) getTeams() ([]*m.TeamDTO, error) {
-	if g.teams != nil {
-		return g.teams, nil
+func (g *dashboardGuardianImpl) getTeams() ([]*m.Team, error) {
+	if g.groups != nil {
+		return g.groups, nil
 	}
 
 	query := m.GetTeamsByUserQuery{OrgId: g.orgId, UserId: g.user.UserId}
 	err := bus.Dispatch(&query)
 
-	g.teams = query.Result
+	g.groups = query.Result
 	return query.Result, err
 }
 

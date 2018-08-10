@@ -63,8 +63,7 @@ export class SearchResultsCtrl {
   }
 
   onItemClick(item) {
-    //Check if one string can be found in the other
-    if (this.$location.path().indexOf(item.url) > -1 || item.url.indexOf(this.$location.path()) > -1) {
+    if (this.$location.path().indexOf(item.url) > -1) {
       appEvents.emit('hide-dash-search');
     }
   }

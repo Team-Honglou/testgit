@@ -1,22 +1,21 @@
 'use strict';
 
 const merge = require('webpack-merge');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const common = require('./webpack.common.js');
 const webpack = require('webpack');
 const path = require('path');
 const ngAnnotatePlugin = require('ng-annotate-webpack-plugin');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = merge(common, {
-  mode: 'production',
   devtool: "source-map",
 
   entry: {
     dark: './public/sass/logdisplayplatform.dark.scss',
     light: './public/sass/logdisplayplatform.light.scss',
+    vendor: require('./dependencies'),
   },
 
   module: {
@@ -36,49 +35,49 @@ module.exports = merge(common, {
       {
         test: /\.tsx?$/,
         exclude: /node_modules/,
-        use: {
-          loader: 'ts-loader',
-          options: {
-            transpileOnly: true
+        use: [
+          {
+            loader: 'awesome-typescript-loader',
+            options: {
+              errorsAsWarnings: false,
+            },
           },
-        },
+        ]
       },
       require('./sass.rule.js')({
-        sourceMap: false, minimize: false, preserveUrl: false
+        sourceMap: false, minimize: true, preserveUrl: false
       })
     ]
   },
 
-  optimization: {
-    splitChunks: {
-      cacheGroups: {
-        commons: {
-          test: /[\\/]node_modules[\\/].*[jt]sx?$/,
-          name: "vendor",
-          chunks: "all"
-        }
-      }
+  devServer: {
+    noInfo: true,
+    stats: {
+      chunks: false,
     },
-    minimizer: [
-      new UglifyJsPlugin({
-        cache: true,
-        parallel: true,
-        sourceMap: true
-      }),
-      new OptimizeCSSAssetsPlugin({})
-    ]
   },
 
   plugins: [
-    new MiniCssExtractPlugin({
-      filename: "logdisplayplatform.[name].css"
+    new ExtractTextPlugin({
+      filename: 'logdisplayplatform.[name].css',
     }),
     new ngAnnotatePlugin(),
+    new UglifyJSPlugin({
+      sourceMap: true,
+    }),
+    new webpack.DefinePlugin({
+      'process.env': {
+        'NODE_ENV': JSON.stringify('production')
+      }
+    }),
     new HtmlWebpackPlugin({
       filename: path.resolve(__dirname, '../../public/views/index.html'),
       template: path.resolve(__dirname, '../../public/views/index.template.html'),
       inject: 'body',
-      chunks: ['vendor', 'app'],
+      chunks: ['manifest', 'vendor', 'app'],
+    }),
+    new webpack.optimize.CommonsChunkPlugin({
+      names: ['vendor', 'manifest'],
     }),
     function () {
       this.plugin("done", function (stats) {

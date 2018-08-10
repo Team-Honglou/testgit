@@ -15,49 +15,42 @@ weight = 2
 
 Description | Download
 ------------ | -------------
-Stable for CentOS / Fedora / OpenSuse / Redhat Linux | [x86-64](https://logdisplayplatform.com/logdisplayplatform/download?platform=linux)
-Stable for CentOS / Fedora / OpenSuse / Redhat Linux | [ARM64](https://logdisplayplatform.com/logdisplayplatform/download?platform=arm)
-Stable for CentOS / Fedora / OpenSuse / Redhat Linux | [ARMv7](https://logdisplayplatform.com/logdisplayplatform/download?platform=arm)
+Stable for CentOS / Fedora / OpenSuse / Redhat Linux | [5.1.3 (x86-64 rpm)](https://s3-us-west-2.amazonaws.com/logdisplayplatform-releases/release/logdisplayplatform-5.1.3-1.x86_64.rpm)
+<!--
+Latest Beta for CentOS / Fedora / OpenSuse / Redhat Linux | [5.1.0-beta1 (x86-64 rpm)](https://s3-us-west-2.amazonaws.com/logdisplayplatform-releases/release/logdisplayplatform-5.1.0-beta1.x86_64.rpm)
+-->
 
-Read [Upgrading LogDisplayPlatform]({{< relref "installation/upgrading.md" >}}) for tips and guidance on updating an existing installation.
+Read [Upgrading LogDisplayPlatform]({{< relref "installation/upgrading.md" >}}) for tips and guidance on updating an existing
+installation.
 
 ## Install Stable
 
 You can install LogDisplayPlatform using Yum directly.
 
 ```bash
-$ sudo yum install <rpm package url>
+$ sudo yum install https://s3-us-west-2.amazonaws.com/logdisplayplatform-releases/release/logdisplayplatform-5.1.3-1.x86_64.rpm
 ```
 
-Example:
+<!-- ## Install Beta
 
 ```bash
-$ sudo yum install https://s3-us-west-2.amazonaws.com/logdisplayplatform-releases/release/logdisplayplatform-5.1.4-1.x86_64.rpm
-```
+$ sudo yum install https://s3-us-west-2.amazonaws.com/logdisplayplatform-releases/release/logdisplayplatform-5.1.0-beta1.x86_64.rpm
+``` -->
 
-Or install manually using `rpm`. First execute
+Or install manually using `rpm`.
 
-```bash
-$ wget <rpm package url>
-```
-
-Example:
+#### On CentOS / Fedora / Redhat:
 
 ```bash
-$ wget https://s3-us-west-2.amazonaws.com/logdisplayplatform-releases/release/logdisplayplatform-5.1.4-1.x86_64.rpm
-```
-
-### On CentOS / Fedora / Redhat:
-
-```bash
+$ wget https://s3-us-west-2.amazonaws.com/logdisplayplatform-releases/release/logdisplayplatform-5.1.3-1.x86_64.rpm
 $ sudo yum install initscripts fontconfig
-$ sudo rpm -Uvh <local rpm package>
+$ sudo rpm -Uvh logdisplayplatform-5.1.3-1.x86_64.rpm
 ```
 
-### On OpenSuse:
+#### On OpenSuse:
 
 ```bash
-$ sudo rpm -i --nodeps <local rpm package>
+$ sudo rpm -i --nodeps logdisplayplatform-5.1.3-1.x86_64.rpm
 ```
 
 ## Install via YUM Repository
